@@ -42,6 +42,42 @@
     --accent-dark: #c8df20;
     --muted-hex: #7a7875;
   }
+
+  .light {
+    --background: 40 6% 95%;
+    --foreground: 240 4% 6%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 4% 6%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 4% 6%;
+
+    --primary: 68 74% 50%;
+    --primary-foreground: 240 4% 6%;
+
+    --secondary: 40 4% 93%;
+    --secondary-foreground: 240 4% 6%;
+
+    --muted: 36 3% 53%;
+    --muted-foreground: 36 3% 53%;
+
+    --accent: 68 74% 50%;
+    --accent-foreground: 240 4% 6%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 0 0% 0% / 0.08;
+    --input: 0 0% 0% / 0.08;
+    --ring: 68 74% 50%;
+
+    --surface: #ffffff;
+    --surface2: #efefec;
+    --accent-hex: #c8df20;
+    --accent-dark: #c8df20;
+    --muted-hex: #8a8885;
+  }
 }
 
 @layer base {
