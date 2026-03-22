@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { StoreProvider } from "@/contexts/StoreContext";
 import Index from "./pages/Index";
 import SavedPage from "./pages/SavedPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
@@ -17,6 +18,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/saved" element={<SavedPage />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

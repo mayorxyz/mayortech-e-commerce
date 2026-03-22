@@ -61,7 +61,7 @@ export default function AdminPage() {
       }
     }
 
-    await addProduct({ name, category, price, desc, specs, image: imageUrl });
+    await addProduct({ name, category, price, priceNum: parseInt(price.replace(/\D/g, "")) || 0, condition: "new" as const, inStock: true, desc, specs, image: imageUrl, images: imageUrl ? [imageUrl] : [] });
     setName("");
     setPrice("");
     setDesc("");

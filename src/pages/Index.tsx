@@ -2,23 +2,32 @@ import { useState, useCallback, useMemo } from "react";
 import Header from "@/components/Header";
 import CategoryFilter from "@/components/CategoryFilter";
 import SearchBar from "@/components/SearchBar";
+import PriceFilter from "@/components/PriceFilter";
 import ProductCard from "@/components/ProductCard";
 import OrderModal from "@/components/OrderModal";
 import ToastStack from "@/components/ToastStack";
-import { useProducts } from "@/hooks/useProducts";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import DeliveryExpander from "@/components/DeliveryExpander";
+import Footer from "@/components/Footer";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
+import AboutSheet from "@/components/AboutSheet";
+import { products } from "@/data/products";
 import { useOrders } from "@/hooks/useOrders";
 import { useStore } from "@/contexts/StoreContext";
 import { sendOrderEmail } from "@/lib/emailjs";
 import { Product } from "@/types/product";
 
 export default function Index() {
-  const { products, loading } = useProducts();
   const { placeOrder } = useOrders();
   const { savedItems, toasts, showToast, toggleSave, addOrderToHistory } = useStore();
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [orderProduct, setOrderProduct] = useState<Product | null>(null);
+  const [priceMin, setPriceMin] = useState(0);
+  const [priceMax, setPriceMax] = useState(2000000);
+  const [sortValue, setSortValue] = useState("newest");
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const filtered = useMemo(() => {
     let result =
@@ -35,8 +44,16 @@ export default function Index() {
           p.specs.toLowerCase().includes(q)
       );
     }
+
+    result = result.filter((p) => p.priceNum >= priceMin && p.priceNum <= priceMax);
+
+    // Sort
+    if (sortValue === "asc") result = [...result].sort((a, b) => a.priceNum - b.priceNum);
+    else if (sortValue === "desc") result = [...result].sort((a, b) => b.priceNum - a.priceNum);
+    else if (sortValue === "az") result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+
     return result;
-  }, [products, activeCategory, searchQuery]);
+  }, [products, activeCategory, searchQuery, priceMin, priceMax, sortValue]);
 
   const handleOrderSubmit = useCallback(
     async (data: { name: string; phone: string; email: string }) => {
@@ -47,10 +64,12 @@ export default function Index() {
       if (!orderProduct) return;
 
       const orderData = {
+        productId: orderProduct.id,
         productName: orderProduct.name,
         customerName: data.name,
         phone: data.phone,
         email: data.email,
+        status: "pending",
         timestamp: Date.now(),
       };
 
@@ -74,23 +93,49 @@ export default function Index() {
     [orderProduct, placeOrder, showToast, addOrderToHistory]
   );
 
+  const handlePriceChange = useCallback((min: number, max: number) => {
+    setPriceMin(min);
+    setPriceMax(max);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      <Header />
-      <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
+      <Header onAbout={() => setAboutOpen(true)} />
+
       <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-      {loading ? (
-        <div className="text-center text-muted py-16 text-sm">Loading products...</div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center text-muted py-16 text-sm">
-          {searchQuery.trim()
-            ? `No products found for '${searchQuery}'`
-            : "No products in this category yet."}
+      <PriceFilter
+        priceMin={priceMin}
+        priceMax={priceMax}
+        onPriceChange={handlePriceChange}
+        sortValue={sortValue}
+        onSortChange={setSortValue}
+      />
+
+      <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
+
+      {/* Why strip */}
+      <div className="why">
+        <div className="why-i"><span>✓</span> Genuine products</div>
+        <div className="why-i"><span>✓</span> Fast delivery</div>
+        <div className="why-i"><span>✓</span> WhatsApp support</div>
+      </div>
+
+      {/* Grid */}
+      {filtered.length === 0 ? (
+        <div className="grid">
+          <div className="empty">
+            <span className="emo">{searchQuery.trim() ? "🔍" : "📦"}</span>
+            <p>
+              {searchQuery.trim()
+                ? <>No results for "<strong>{searchQuery}</strong>"</>
+                : "Nothing here yet — check back soon"}
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3.5 px-7 pt-1 pb-10">
+        <div className="grid">
           {filtered.map((p) => (
             <ProductCard
               key={p.id}
@@ -102,6 +147,12 @@ export default function Index() {
           ))}
         </div>
       )}
+
+      <TestimonialsSection />
+      <DeliveryExpander />
+      <Footer />
+      <WhatsAppFloat />
+      <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} />
 
       {orderProduct && (
         <OrderModal
