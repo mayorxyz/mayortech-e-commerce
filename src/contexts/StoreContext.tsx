@@ -9,12 +9,15 @@ interface OrderRecord extends Order {
 interface StoreContextType {
   savedItems: Set<string>;
   savedProducts: Product[];
+  cartCount: number;
   orderHistory: OrderRecord[];
+  recentlyViewed: string[];
   toasts: ReturnType<typeof useToastQueue>["toasts"];
   showToast: (message: string, type?: ToastType, icon?: string) => void;
   toggleSave: (product: Product) => void;
   removeSaved: (productId: string) => void;
   addOrderToHistory: (order: Order, product: Product) => void;
+  addRecentlyViewed: (productId: string) => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
 }
@@ -26,21 +29,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
   const [savedProducts, setSavedProducts] = useState<Product[]>([]);
   const [orderHistory, setOrderHistory] = useState<OrderRecord[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<string[]>([]);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("mayortech-theme") as "dark" | "light") || "dark";
+      return (localStorage.getItem("mt-theme") as "dark" | "light") || "dark";
     }
     return "dark";
   });
 
   useEffect(() => {
-    const root = document.documentElement;
+    const root = document.body;
     if (theme === "light") {
       root.classList.add("light");
     } else {
       root.classList.remove("light");
     }
-    localStorage.setItem("mayortech-theme", theme);
+    localStorage.setItem("mt-theme", theme);
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
@@ -75,27 +79,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setSavedProducts((sp) => sp.filter((p) => p.id !== productId));
   }, []);
 
-  const addOrderToHistory = useCallback((order: Order, product: Product) => {
+  const addOrderToHistory = useCallback((order: Order, _product: Product) => {
     setOrderHistory((prev) => [
       {
         ...order,
-        placedAt: new Date().toLocaleString(),
+        placedAt: new Date().toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" }),
       },
       ...prev,
     ]);
   }, []);
+
+  const addRecentlyViewed = useCallback((productId: string) => {
+    setRecentlyViewed((prev) => {
+      const next = prev.filter((x) => x !== productId);
+      next.unshift(productId);
+      if (next.length > 8) next.pop();
+      return next;
+    });
+  }, []);
+
+  const cartCount = savedItems.size;
 
   return (
     <StoreContext.Provider
       value={{
         savedItems,
         savedProducts,
+        cartCount,
         orderHistory,
+        recentlyViewed,
         toasts,
         showToast,
         toggleSave,
         removeSaved,
         addOrderToHistory,
+        addRecentlyViewed,
         theme,
         toggleTheme,
       }}
