@@ -1,9 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
+import { useOrders } from "@/hooks/useOrders";
+import { sendOrderEmail } from "@/lib/emailjs";
 import { products } from "@/data/products";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
+import OrderModal from "@/components/OrderModal";
 
 const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
 
@@ -20,13 +23,14 @@ function condBadge(c: string) {
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { savedItems, toggleSave, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast } = useStore();
-  const [orderProduct, setOrderProduct] = useState<typeof product | null>(null);
+  const { savedItems, toggleSave, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast, addOrderToHistory } = useStore();
+  const { placeOrder } = useOrders();
 
   const product = useMemo(() => products.find((p) => p.id === id), [id]);
   const [mainImg, setMainImg] = useState(product?.images[0] || "");
   const [activeThumb, setActiveThumb] = useState(0);
   const [bumpCart, setBumpCart] = useState(false);
+  const [orderOpen, setOrderOpen] = useState(false);
 
   // Track recently viewed
   useMemo(() => {
@@ -35,7 +39,7 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="page active" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ color: "var(--muted)" }}>Product not found.</p>
       </div>
     );
@@ -59,17 +63,35 @@ export default function ProductDetailPage() {
     setActiveThumb(idx);
   };
 
-  // Recently viewed (exclude current)
+  const handleOrderSubmit = async (data: { name: string; phone: string; email: string }) => {
+    if (!data.name || !data.phone || !data.email) {
+      showToast("Please fill in all fields", "unbookmark", "!");
+      return;
+    }
+    const orderData = {
+      productId: product.id,
+      productName: product.name,
+      customerName: data.name,
+      phone: data.phone,
+      email: data.email,
+      status: "pending",
+      timestamp: Date.now(),
+    };
+    await placeOrder(orderData);
+    addOrderToHistory(orderData, product);
+    sendOrderEmail({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email });
+    setOrderOpen(false);
+    showToast(`Order placed for <strong>${product.name}</strong> — we'll be in touch!`, "order", "✓");
+  };
+
   const recentProducts = recentlyViewed
     .filter((x) => x !== id)
     .slice(0, 4)
     .map((rid) => products.find((p) => p.id === rid))
     .filter(Boolean);
 
-  // Related
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 5);
 
-  // Specs
   const specsList = product.specs.split("|").map((s) => {
     const parts = s.split(":");
     return parts.length >= 2
@@ -78,9 +100,8 @@ export default function ProductDetailPage() {
   });
 
   return (
-    <div className="page active" style={{ minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      {/* Header */}
       <div className="detail-hdr">
         <button className="back-btn" onClick={() => navigate("/")}>← Back</button>
         <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
@@ -92,7 +113,6 @@ export default function ProductDetailPage() {
         </button>
       </div>
 
-      {/* Gallery */}
       <div className="gallery">
         <div className="gallery-main">
           <img src={mainImg || product.images[0]} alt={product.name} onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }} />
@@ -110,7 +130,6 @@ export default function ProductDetailPage() {
         {!product.inStock && <div className="gallery-sold">Sold Out</div>}
       </div>
 
-      {/* Body */}
       <div className="dbody">
         <div className="dcat">{product.category.toUpperCase()}</div>
         <div className="dname">{product.name}</div>
@@ -150,7 +169,6 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Recently Viewed */}
       {recentProducts.length > 0 && (
         <div className="rel-section">
           <div className="section-title">Recently viewed</div>
@@ -168,7 +186,6 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* Related */}
       {relatedProducts.length > 0 && (
         <div className="rel-section">
           <div className="section-title">You might also like</div>
@@ -188,21 +205,26 @@ export default function ProductDetailPage() {
 
       <div style={{ height: 84 }} />
 
-      {/* Fixed CTA */}
       <div className="dcta">
         <button className={`bs2${isSaved ? " saved" : ""}`} onClick={handleSave}>
           {isSaved ? "✓" : "+"}
         </button>
         {product.inStock ? (
-          <button className="bo2" onClick={() => navigate(`/product/${product.id}`, { state: { order: true } })}>
-            Order Now →
-          </button>
+          <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
         ) : (
           <button className="bs3" disabled>Currently Sold Out</button>
         )}
       </div>
 
       <WhatsAppFloat className="detail-wa" />
+
+      {orderOpen && (
+        <OrderModal
+          product={product}
+          onClose={() => setOrderOpen(false)}
+          onSubmit={handleOrderSubmit}
+        />
+      )}
     </div>
   );
 }
