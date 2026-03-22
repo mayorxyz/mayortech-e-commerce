@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Product } from "@/types/product";
 
 interface Props {
@@ -9,84 +9,73 @@ interface Props {
   onOrder: () => void;
 }
 
+function condBadge(c: string) {
+  if (c === "uk") return <span className="cbadge uk">UK Used</span>;
+  if (c === "ng") return <span className="cbadge ng">NG Used</span>;
+  return <span className="cbadge new">Brand New</span>;
+}
+
 export default function ProductCard({ product, isSaved, onSave, onOrder }: Props) {
   const [descOpen, setDescOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const specsPreview = product.specs
+    .split("|")
+    .slice(0, 3)
+    .map((s) => s.split(":").slice(1).join(":").trim())
+    .join(" · ");
 
   return (
-    <div className="bg-surface border border-border rounded-lg overflow-hidden flex flex-col transition-all duration-200 hover:border-[rgba(255,255,255,0.14)] hover:-translate-y-0.5 group">
-      {/* Image */}
-      <div className="w-full aspect-square bg-surface2 flex items-center justify-center overflow-hidden relative">
-        <span className="absolute top-2.5 left-2.5 bg-[rgba(14,14,15,0.7)] border border-border text-muted text-[10px] font-medium py-[3px] px-2 rounded-full uppercase tracking-wider">
-          {product.category}
-        </span>
+    <div className="card">
+      <div className="card-img" onClick={() => navigate(`/product/${product.id}`)}>
+        <span className="ctag">{product.category}</span>
+        {condBadge(product.condition)}
         <img
           src={product.image}
           alt={product.name}
-          className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-[1.04]"
           onError={(e) => {
-            (e.target as HTMLImageElement).style.opacity = "0.3";
+            (e.target as HTMLImageElement).style.opacity = "0.2";
           }}
         />
+        {!product.inStock && <div className="sold-ov">Sold Out</div>}
       </div>
 
-      {/* Body */}
-      <div className="p-3.5 pb-0 flex-1">
-        <div className="font-heading font-semibold text-sm leading-tight text-foreground">
-          {product.name}
-        </div>
-        <div className="text-[13px] font-medium text-primary mt-1">{product.price}</div>
+      <div className="card-body">
+        <div className="cname" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</div>
+        <div className="cprice">{product.price}</div>
       </div>
 
-      {/* Desc Toggle */}
       <div
+        className={`dtog${descOpen ? " open" : ""}`}
         onClick={() => setDescOpen(!descOpen)}
-        className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer border-t border-border mt-2.5 text-muted text-xs transition-colors hover:text-foreground select-none`}
       >
-        <span>Specs &amp; description</span>
-        <ChevronDown
-          size={14}
-          className={`transition-transform duration-[250ms] shrink-0 ${descOpen ? "rotate-180" : ""}`}
-        />
+        <span>Quick specs</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </div>
-      <div
-        className={`overflow-hidden transition-[max-height] duration-300 ease-in-out bg-surface2 ${
-          descOpen ? "max-h-[200px]" : "max-h-0"
-        }`}
-      >
-        <div className="p-3.5 text-xs leading-[1.65] text-muted">
-          <strong className="block text-foreground text-[11px] uppercase tracking-wider mb-1 font-heading">
-            Overview
-          </strong>
-          {product.desc}
-          <br />
-          <br />
-          <strong className="block text-foreground text-[11px] uppercase tracking-wider mb-1 mt-2 font-heading">
-            Specs
-          </strong>
-          {product.specs}
+      <div className={`dpanel${descOpen ? " open" : ""}`}>
+        <div className="dpanel-in">
+          <strong>Overview</strong>
+          {product.desc.substring(0, 110)}...
+          <br /><br />
+          <strong>Key specs</strong>
+          {specsPreview}
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-2 p-3.5 pt-3 items-center">
+      <div className="cact">
         <button
+          className={`bsave${isSaved ? " saved" : ""}`}
           onClick={onSave}
-          className={`w-9 h-9 shrink-0 rounded-[10px] border flex items-center justify-center text-lg leading-none font-body transition-all cursor-pointer
-            ${
-              isSaved
-                ? "text-primary border-primary bg-[rgba(232,255,71,0.08)] text-sm"
-                : "bg-surface2 border-border text-muted hover:text-primary hover:border-primary"
-            }
-          `}
         >
           {isSaved ? "✓" : "+"}
         </button>
-        <button
-          onClick={onOrder}
-          className="flex-1 h-9 rounded-[10px] bg-primary border-none text-primary-foreground font-heading font-bold text-[13px] cursor-pointer transition-all hover:brightness-90 active:scale-[0.97]"
-        >
-          Order Now
-        </button>
+        {product.inStock ? (
+          <button className="border-btn" onClick={onOrder}>Order Now</button>
+        ) : (
+          <button className="bsold" disabled>Sold Out</button>
+        )}
       </div>
     </div>
   );
