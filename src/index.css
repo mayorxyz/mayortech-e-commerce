@@ -136,7 +136,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .why-i span{color:var(--accent);font-weight:700;font-size:13px}
 
 /* GRID */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 12px 20px;align-items:start}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 12px 20px;align-items:start !important}
 @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 32px}}
 @media(min-width:1024px){.grid{grid-template-columns:repeat(4,1fr);gap:14px}}
 
