@@ -57,6 +57,7 @@ function MasonryGrid({ items, savedItems, toggleSave, setOrderProduct }: {
       ))}
     </div>
   );
+}
 
 export default function Index() {
   const { placeOrder } = useOrders();
