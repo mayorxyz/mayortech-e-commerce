@@ -6,11 +6,11 @@ import PriceFilter from "@/components/PriceFilter";
 import ProductCard from "@/components/ProductCard";
 import OrderModal from "@/components/OrderModal";
 import ToastStack from "@/components/ToastStack";
-import TestimonialsSection from "@/components/TestimonialsSection";
 import DeliveryExpander from "@/components/DeliveryExpander";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AboutSheet from "@/components/AboutSheet";
+import ContactSheet from "@/components/ContactSheet";
 import { products } from "@/data/products";
 import { useOrders } from "@/hooks/useOrders";
 import { useStore } from "@/contexts/StoreContext";
@@ -70,6 +70,7 @@ export default function Index() {
   const [priceMax, setPriceMax] = useState(2000000);
   const [sortValue, setSortValue] = useState("newest");
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const filtered = useMemo(() => {
     let result =
@@ -89,7 +90,6 @@ export default function Index() {
 
     result = result.filter((p) => p.priceNum >= priceMin && p.priceNum <= priceMax);
 
-    // Sort
     if (sortValue === "asc") result = [...result].sort((a, b) => a.priceNum - b.priceNum);
     else if (sortValue === "desc") result = [...result].sort((a, b) => b.priceNum - a.priceNum);
     else if (sortValue === "az") result = [...result].sort((a, b) => a.name.localeCompare(b.name));
@@ -143,7 +143,7 @@ export default function Index() {
   return (
     <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      <Header onAbout={() => setAboutOpen(true)} />
+      <Header onAbout={() => setAboutOpen(true)} onContact={() => setContactOpen(true)} />
 
       <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
@@ -157,14 +157,12 @@ export default function Index() {
 
       <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
 
-      {/* Why strip */}
       <div className="why">
         <div className="why-i"><span>✓</span> Genuine products</div>
         <div className="why-i"><span>✓</span> Fast delivery</div>
         <div className="why-i"><span>✓</span> WhatsApp support</div>
       </div>
 
-      {/* Grid */}
       {filtered.length === 0 ? (
         <div className="grid-columns">
           <div className="empty" style={{ width: "100%" }}>
@@ -180,11 +178,11 @@ export default function Index() {
         <MasonryGrid items={filtered} savedItems={savedItems} toggleSave={toggleSave} setOrderProduct={setOrderProduct} />
       )}
 
-      <TestimonialsSection />
       <DeliveryExpander />
       <Footer />
       <WhatsAppFloat />
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} />
 
       {orderProduct && (
         <OrderModal
