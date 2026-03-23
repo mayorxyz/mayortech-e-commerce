@@ -140,7 +140,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 @media(min-width:640px){.grid-columns{gap:12px;padding:0 20px 32px}}
 
 /* CARD */
-.card{background:var(--surface);border:1px solid var(--bv);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:border-color .2s,transform .2s}
+.card{background:var(--surface);border:1px solid var(--bv);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:border-color .2s,transform .2s;min-height:320px}
 .card:hover{border-color:var(--accent);transform:translateY(-2px)}
 .card-img{width:100%;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
 .card-img img{width:75%;height:75%;object-fit:contain;transition:transform .3s}
