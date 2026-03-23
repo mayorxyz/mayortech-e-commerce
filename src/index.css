@@ -134,11 +134,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .why-i{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);padding:0 14px;border-right:1px solid var(--border)}
 .why-i:last-child{border-right:none}
 .why-i span{color:var(--accent);font-weight:700;font-size:13px}
-
-/* GRID */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 12px 20px;align-items:start !important}
-@media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 32px}}
-@media(min-width:1024px){.grid{grid-template-columns:repeat(4,1fr);gap:14px}}
+/* GRID — masonry columns */
+.grid-columns{display:flex;gap:10px;padding:0 12px 20px;align-items:flex-start}
+.grid-col{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+@media(min-width:640px){.grid-columns{gap:12px;padding:0 20px 32px}}
 
 /* CARD */
 .card{background:var(--surface);border:1px solid var(--bv);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:border-color .2s,transform .2s}
@@ -208,8 +207,8 @@ body.light .ctag{background:rgba(255,255,255,0.75);border-color:rgba(0,0,0,0.1);
 .tab{padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
 .tab.active{color:var(--text);border-bottom-color:var(--accent)}
 .tpanel{display:none;padding:20px}.tpanel.active{display:block}
-.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:start}
-@media(min-width:640px){.sgrid{grid-template-columns:repeat(3,1fr)}}
+.sgrid{display:flex;gap:10px;align-items:flex-start}
+.sgrid .grid-col{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
 .scard{background:var(--surface);border:1px solid var(--bv);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
 .scard img{width:100%;aspect-ratio:1;object-fit:contain;background:var(--surface2);padding:12px}
 .scard-body{padding:10px}
