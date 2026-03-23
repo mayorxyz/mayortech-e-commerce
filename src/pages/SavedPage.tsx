@@ -37,20 +37,24 @@ export default function SavedPage() {
             </div>
           ) : (
             <div className="sgrid">
-              {savedList.map((p) => (
-                <div key={p.id} className="scard">
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    onClick={() => navigate(`/product/${p.id}`)}
-                    style={{ cursor: "pointer" }}
-                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }}
-                  />
-                  <div className="scard-body">
-                    <div className="scard-name" onClick={() => navigate(`/product/${p.id}`)}>{p.name}</div>
-                    <div className="scard-price">{p.price}</div>
-                    <button className="brem" onClick={() => { toggleSave(p); }}>✕ Remove</button>
-                  </div>
+              {[0, 1].map((ci) => (
+                <div className="grid-col" key={ci}>
+                  {savedList.filter((_, i) => i % 2 === ci).map((p) => (
+                    <div key={p.id} className="scard">
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        onClick={() => navigate(`/product/${p.id}`)}
+                        style={{ cursor: "pointer" }}
+                        onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }}
+                      />
+                      <div className="scard-body">
+                        <div className="scard-name" onClick={() => navigate(`/product/${p.id}`)}>{p.name}</div>
+                        <div className="scard-price">{p.price}</div>
+                        <button className="brem" onClick={() => { toggleSave(p); }}>✕ Remove</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
