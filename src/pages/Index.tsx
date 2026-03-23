@@ -124,8 +124,8 @@ export default function Index() {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="grid">
-          <div className="empty">
+        <div className="grid-columns">
+          <div className="empty" style={{ width: "100%" }}>
             <span className="emo">{searchQuery.trim() ? "🔍" : "📦"}</span>
             <p>
               {searchQuery.trim()
@@ -135,17 +135,7 @@ export default function Index() {
           </div>
         </div>
       ) : (
-        <div className="grid">
-          {filtered.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              isSaved={savedItems.has(p.id)}
-              onSave={() => toggleSave(p)}
-              onOrder={() => setOrderProduct(p)}
-            />
-          ))}
-        </div>
+        <MasonryGrid items={filtered} savedItems={savedItems} toggleSave={toggleSave} setOrderProduct={setOrderProduct} />
       )}
 
       <TestimonialsSection />
