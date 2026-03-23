@@ -142,7 +142,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 /* CARD */
 .card{background:var(--surface);border:1px solid var(--bv);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:border-color .2s,transform .2s;min-height:320px}
 .card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.card-img{width:100%;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
+.card-img{width:100%;aspect-ratio:1;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
 .card-img img{width:75%;height:75%;object-fit:contain;transition:transform .3s}
 .card:hover .card-img img{transform:scale(1.05)}
 .ctag{position:absolute;top:8px;left:8px;background:rgba(14,14,15,0.65);border:1px solid rgba(255,255,255,0.1);color:#ccc;font-size:9px;font-weight:500;padding:3px 7px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
