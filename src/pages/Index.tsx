@@ -17,7 +17,48 @@ import { useStore } from "@/contexts/StoreContext";
 import { sendOrderEmail } from "@/lib/emailjs";
 import { Product } from "@/types/product";
 
-export default function Index() {
+function useColumns() {
+  const [cols, setCols] = useState(2);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      setCols(w >= 1024 ? 4 : w >= 640 ? 3 : 2);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return cols;
+}
+
+function MasonryGrid({ items, savedItems, toggleSave, setOrderProduct }: {
+  items: Product[];
+  savedItems: Set<string>;
+  toggleSave: (p: Product) => void;
+  setOrderProduct: (p: Product) => void;
+}) {
+  const cols = useColumns();
+  const columns: Product[][] = Array.from({ length: cols }, () => []);
+  items.forEach((p, i) => columns[i % cols].push(p));
+  return (
+    <div className="grid-columns">
+      {columns.map((col, ci) => (
+        <div className="grid-col" key={ci}>
+          {col.map((p) => (
+            <ProductCard
+              key={p.id}
+              product={p}
+              isSaved={savedItems.has(p.id)}
+              onSave={() => toggleSave(p)}
+              onOrder={() => setOrderProduct(p)}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
   const { placeOrder } = useOrders();
   const { savedItems, toasts, showToast, toggleSave, addOrderToHistory } = useStore();
 
