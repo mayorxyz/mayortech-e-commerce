@@ -8,6 +8,7 @@ import ToastStack from "@/components/ToastStack";
 export default function SavedPage() {
   const [tab, setTab] = useState<"bkmarks" | "orders">("bkmarks");
   const { savedItems, savedProducts, removeSaved, toggleSave, orderHistory, toasts, cartCount } = useStore();
+  const { products } = useSupabaseProducts();
   const navigate = useNavigate();
 
   const savedList = products.filter((p) => savedItems.has(p.id));
