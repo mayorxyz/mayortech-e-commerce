@@ -153,10 +153,18 @@ export default function AdminPage() {
           
           <div className="grid grid-cols-2 gap-3">
             <select className={inputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
-              {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>})}
+              {CATEGORY_OPTIONS.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
             <select className={inputClass} value={condition} onChange={(e) => setCondition(e.target.value)}>
-              {CONDITION_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>})}
+              {CONDITION_OPTIONS.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
 
