@@ -16,10 +16,6 @@ export function useOrders() {
   const placeOrder = async (order: SupabaseOrder): Promise<{ success: boolean; error?: string }> => {
     setIsSubmitting(true);
     try {
-      if (!supabase) {
-        console.log("Order (local – Supabase not configured):", order);
-        return { success: true };
-      }
       const { error } = await supabase.from("orders").insert({
         customer_name: order.customer_name,
         customer_phone: order.customer_phone,
