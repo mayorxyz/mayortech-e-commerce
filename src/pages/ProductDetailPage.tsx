@@ -23,6 +23,7 @@ function condBadge(c: string) {
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { products } = useSupabaseProducts();
   const { savedItems, toggleSave, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
 
