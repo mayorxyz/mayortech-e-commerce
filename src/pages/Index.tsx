@@ -60,6 +60,7 @@ function MasonryGrid({ items, savedItems, toggleSave, setOrderProduct }: {
 }
 
 export default function Index() {
+  const { products } = useSupabaseProducts();
   const { placeOrder } = useOrders();
   const { savedItems, toasts, showToast, toggleSave, addOrderToHistory } = useStore();
 
