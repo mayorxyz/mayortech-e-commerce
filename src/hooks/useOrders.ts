@@ -1,31 +1,45 @@
-import { useState, useEffect } from "react";
-import { collection, getDocs, addDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { Order } from "@/types/product";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+export interface SupabaseOrder {
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  items: { productName: string; price: string; quantity: number }[];
+  total_amount: number;
+  status: string;
+}
 
 export function useOrders() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchOrders = async () => {
+  const placeOrder = async (order: SupabaseOrder): Promise<{ success: boolean; error?: string }> => {
+    setIsSubmitting(true);
     try {
-      const snap = await getDocs(collection(db, "orders"));
-      setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Order)));
-    } catch {
-      // Firebase not configured
+      if (!supabase) {
+        console.log("Order (local – Supabase not configured):", order);
+        return { success: true };
+      }
+      const { error } = await supabase.from("orders").insert({
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        customer_address: order.customer_address,
+        items: order.items,
+        total_amount: order.total_amount,
+        status: order.status,
+      });
+      if (error) {
+        console.error("Supabase insert error:", error);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error("Order error:", err);
+      return { success: false, error: err.message || "Something went wrong" };
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const placeOrder = async (order: Omit<Order, "id">) => {
-    try {
-      await addDoc(collection(db, "orders"), order);
-    } catch {
-      console.log("Order (local):", order);
-    }
-  };
-
-  return { orders, placeOrder, refetch: fetchOrders };
+  return { placeOrder, isSubmitting };
 }
