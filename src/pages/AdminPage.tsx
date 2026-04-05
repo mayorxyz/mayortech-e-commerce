@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CATEGORY_OPTIONS = ["phones", "laptops", "earphones", "powerbanks", "accessories", "others"];
 
 export default function AdminPage() {
   const { products, loading, addProduct, updateProduct, deleteProduct, uploadFile } = useSupabaseProducts();
+  const { logout } = useAuth();
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("phones");
@@ -80,9 +82,17 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background p-7 max-w-4xl mx-auto">
-      <h1 className="font-heading font-extrabold text-2xl mb-6">
-        Mayor<span className="text-primary">Tech</span> Admin
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="font-heading font-extrabold text-2xl">
+          Mayor<span className="text-primary">Tech</span> Admin
+        </h1>
+        <button
+          onClick={logout}
+          className="px-4 py-2 rounded-xl bg-destructive/10 text-destructive font-heading font-bold text-sm cursor-pointer hover:brightness-90 border border-destructive/20"
+        >
+          Logout
+        </button>
+      </div>
 
       {msg && (
         <div className="mb-4 p-3 rounded-lg bg-surface2 border border-border text-sm text-foreground">
