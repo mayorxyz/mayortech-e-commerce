@@ -311,6 +311,15 @@ body.light .ctag{background:rgba(255,255,255,0.75);border-color:rgba(0,0,0,0.1);
 .bconf{width:100%;padding:13px;border-radius:12px;background:var(--accent);border:none;color:#0e0e0f;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:background .2s}
 .bconf:hover{background:var(--accent-dark)}
 
+.bconf:disabled{opacity:0.6;cursor:not-allowed}
+
+/* ORDER SUCCESS */
+.order-success{text-align:center;padding:20px 0}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--accent);color:#0e0e0f;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;margin:0 auto 16px}
+.success-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px}
+.success-msg{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.success-msg strong{color:var(--text)}
+
 /* FOOTER */
 .footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
 .footer strong{font-family:'Syne',sans-serif;font-size:14px;color:var(--text);display:block;margin-bottom:4px}
