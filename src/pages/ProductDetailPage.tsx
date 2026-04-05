@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { useOrders } from "@/hooks/useOrders";
 import { sendOrderEmail } from "@/lib/emailjs";
-import { products } from "@/data/products";
+import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
@@ -23,6 +23,7 @@ function condBadge(c: string) {
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { products } = useSupabaseProducts();
   const { savedItems, toggleSave, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
 

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
-import { products } from "@/data/products";
+import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 
 export default function SavedPage() {
   const [tab, setTab] = useState<"bkmarks" | "orders">("bkmarks");
   const { savedItems, savedProducts, removeSaved, toggleSave, orderHistory, toasts, cartCount } = useStore();
+  const { products } = useSupabaseProducts();
   const navigate = useNavigate();
 
   const savedList = products.filter((p) => savedItems.has(p.id));
