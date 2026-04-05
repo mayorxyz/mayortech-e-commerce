@@ -1,74 +1,78 @@
 import { useState } from "react";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebase";
-import { useProducts } from "@/hooks/useProducts";
-import { useOrders } from "@/hooks/useOrders";
+import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 
-const ADMIN_PASSWORD = "mayortech2024";
-
-const categoryOptions = ["phones", "laptops", "earphones", "powerbanks", "accessories", "others"];
+const CATEGORY_OPTIONS = ["phones", "laptops", "earphones", "powerbanks", "accessories", "others"];
 
 export default function AdminPage() {
-  const [authed, setAuthed] = useState(false);
-  const [pw, setPw] = useState("");
-  const { products, deleteProduct, addProduct } = useProducts();
-  const { placeOrder } = useOrders();
-  const orders: any[] = []; // orders now managed via Supabase directly
+  const { products, loading, addProduct, updateProduct, deleteProduct, uploadFile } = useSupabaseProducts();
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("phones");
   const [price, setPrice] = useState("");
-  const [desc, setDesc] = useState("");
-  const [specs, setSpecs] = useState("");
+  const [description, setDescription] = useState("");
+  const [inStock, setInStock] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [msg, setMsg] = useState("");
 
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-5">
-        <div className="bg-surface border border-border rounded-[20px] p-7 w-full max-w-sm">
-          <h1 className="font-heading font-bold text-xl mb-4">Admin Login</h1>
-          <input
-            type="password"
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-            placeholder="Enter password"
-            onKeyDown={(e) => e.key === "Enter" && pw === ADMIN_PASSWORD && setAuthed(true)}
-            className="w-full bg-surface2 border border-border rounded-[10px] text-foreground font-body text-sm py-[11px] px-3.5 outline-none focus:border-primary placeholder:text-muted mb-3"
-          />
-          <button
-            onClick={() => pw === ADMIN_PASSWORD && setAuthed(true)}
-            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-sm cursor-pointer hover:brightness-90"
-          >
-            Login
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const resetForm = () => {
+    setName(""); setCategory("phones"); setPrice(""); setDescription("");
+    setInStock(true); setImageFile(null); setVideoFile(null); setEditId(null);
+  };
 
-  const handleUpload = async () => {
-    if (!name || !price || !desc || !specs) return;
-    setUploading(true);
+  const handleSubmit = async () => {
+    if (!name || !price) { setMsg("Name and price are required"); return; }
+    setUploading(true); setMsg("");
+    try {
+      let imageUrl = "";
+      let videoUrl = "";
+      if (imageFile) imageUrl = await uploadFile(imageFile, "images");
+      if (videoFile) videoUrl = await uploadFile(videoFile, "videos");
 
-    let imageUrl = "";
-    if (imageFile) {
-      try {
-        const storageRef = ref(storage, `products/${Date.now()}_${imageFile.name}`);
-        const snap = await uploadBytes(storageRef, imageFile);
-        imageUrl = await getDownloadURL(snap.ref);
-      } catch {
-        imageUrl = "";
+      const priceNum = parseInt(price.replace(/\D/g, "")) || 0;
+
+      if (editId) {
+        const updates: any = { name, price: priceNum, category, description, in_stock: inStock };
+        if (imageUrl) updates.image_url = imageUrl;
+        if (videoUrl) updates.video_url = videoUrl;
+        await updateProduct(editId, updates);
+        setMsg("Product updated!");
+      } else {
+        await addProduct({
+          name, price: priceNum, category, description,
+          image_url: imageUrl, video_url: videoUrl || undefined, in_stock: inStock,
+        });
+        setMsg("Product added!");
       }
+      resetForm();
+    } catch (e: any) {
+      setMsg("Error: " + e.message);
     }
-
-    await addProduct({ name, category, price, priceNum: parseInt(price.replace(/\D/g, "")) || 0, condition: "new" as const, inStock: true, desc, specs, image: imageUrl, images: imageUrl ? [imageUrl] : [] });
-    setName("");
-    setPrice("");
-    setDesc("");
-    setSpecs("");
-    setImageFile(null);
     setUploading(false);
+  };
+
+  const handleEdit = (p: any) => {
+    setEditId(p.id);
+    setName(p.name);
+    setPrice(p.priceNum.toString());
+    setCategory(p.category);
+    setDescription(p.desc);
+    setInStock(p.inStock);
+    setImageFile(null);
+    setVideoFile(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this product?")) return;
+    try {
+      await deleteProduct(id);
+      setMsg("Product deleted");
+    } catch (e: any) {
+      setMsg("Error: " + e.message);
+    }
   };
 
   const inputClass =
@@ -80,72 +84,117 @@ export default function AdminPage() {
         Mayor<span className="text-primary">Tech</span> Admin
       </h1>
 
-      {/* Add Product */}
+      {msg && (
+        <div className="mb-4 p-3 rounded-lg bg-surface2 border border-border text-sm text-foreground">
+          {msg}
+        </div>
+      )}
+
+      {/* Add/Edit Product */}
       <section className="bg-surface border border-border rounded-lg p-6 mb-8">
-        <h2 className="font-heading font-bold text-base mb-4">Add New Product</h2>
+        <h2 className="font-heading font-bold text-base mb-4">
+          {editId ? "Edit Product" : "Add New Product"}
+        </h2>
         <div className="grid gap-3">
           <input className={inputClass} placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <select
-            className={inputClass}
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {categoryOptions.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+          <select className={inputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
+            {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <input className={inputClass} placeholder="Price (e.g. ₦285,000)" value={price} onChange={(e) => setPrice(e.target.value)} />
-          <textarea className={`${inputClass} resize-none h-20`} placeholder="Description" value={desc} onChange={(e) => setDesc(e.target.value)} />
-          <input className={inputClass} placeholder="Specs" value={specs} onChange={(e) => setSpecs(e.target.value)} />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-            className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground file:cursor-pointer"
+          <input className={inputClass} placeholder="Price (e.g. 285000)" value={price} onChange={(e) => setPrice(e.target.value)} />
+          <textarea
+            className={`${inputClass} resize-none h-24`}
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
-          <button
-            onClick={handleUpload}
-            disabled={uploading}
-            className="py-3 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-sm cursor-pointer hover:brightness-90 disabled:opacity-50"
-          >
-            {uploading ? "Uploading..." : "Add Product"}
-          </button>
-        </div>
-      </section>
-
-      {/* Products List */}
-      <section className="bg-surface border border-border rounded-lg p-6 mb-8">
-        <h2 className="font-heading font-bold text-base mb-4">Products ({products.length})</h2>
-        <div className="space-y-3">
-          {products.map((p) => (
-            <div key={p.id} className="flex items-center justify-between bg-surface2 p-3 rounded-lg">
-              <div>
-                <span className="font-heading font-semibold text-sm">{p.name}</span>
-                <span className="text-muted text-xs ml-2">{p.price}</span>
-              </div>
+          <label className="flex items-center gap-3 text-sm text-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={inStock}
+              onChange={(e) => setInStock(e.target.checked)}
+              className="w-4 h-4 accent-primary"
+            />
+            In Stock
+          </label>
+          <div>
+            <label className="text-xs text-muted block mb-1">Product Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground file:cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted block mb-1">Product Video (optional)</label>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+              className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground file:cursor-pointer"
+            />
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={handleSubmit}
+              disabled={uploading}
+              className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-sm cursor-pointer hover:brightness-90 disabled:opacity-50"
+            >
+              {uploading ? "Uploading..." : editId ? "Update Product" : "Add Product"}
+            </button>
+            {editId && (
               <button
-                onClick={() => deleteProduct(p.id)}
-                className="text-xs text-destructive hover:underline cursor-pointer"
+                onClick={resetForm}
+                className="px-6 py-3 rounded-xl bg-surface2 border border-border text-foreground font-heading font-bold text-sm cursor-pointer hover:brightness-90"
               >
-                Delete
+                Cancel
               </button>
-            </div>
-          ))}
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Orders */}
+      {/* Products Grid */}
       <section className="bg-surface border border-border rounded-lg p-6">
-        <h2 className="font-heading font-bold text-base mb-4">Orders ({orders.length})</h2>
-        {orders.length === 0 ? (
-          <p className="text-muted text-sm">No orders yet.</p>
+        <h2 className="font-heading font-bold text-base mb-4">
+          Products ({products.length})
+        </h2>
+        {loading ? (
+          <p className="text-muted text-sm">Loading products...</p>
+        ) : products.length === 0 ? (
+          <p className="text-muted text-sm">No products yet. Add one above.</p>
         ) : (
-          <div className="space-y-3">
-            {orders.map((o) => (
-              <div key={o.id} className="bg-surface2 p-3 rounded-lg text-sm">
-                <div className="font-heading font-semibold">{o.productName}</div>
-                <div className="text-muted mt-1">
-                  {o.customerName} · {o.phone} · {o.email}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {products.map((p) => (
+              <div key={p.id} className="bg-surface2 border border-border rounded-lg overflow-hidden">
+                {p.image && (
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-full h-40 object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                )}
+                <div className="p-3">
+                  <div className="font-heading font-semibold text-sm">{p.name}</div>
+                  <div className="text-muted text-xs mt-1">{p.category} · {p.price}</div>
+                  <div className="text-xs mt-1" style={{ color: p.inStock ? "#64dc82" : "var(--muted)" }}>
+                    {p.inStock ? "In Stock" : "Out of Stock"}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => handleEdit(p)}
+                      className="flex-1 py-2 rounded-lg bg-surface border border-border text-xs text-foreground font-medium cursor-pointer hover:brightness-90"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="flex-1 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-medium cursor-pointer hover:brightness-90"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

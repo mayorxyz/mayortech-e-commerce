@@ -10,6 +10,19 @@ export interface Product {
   images: string[];
   desc: string;
   specs: string;
+  video_url?: string;
+}
+
+export interface SupabaseProduct {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  description: string;
+  image_url: string;
+  video_url: string | null;
+  in_stock: boolean;
+  created_at: string;
 }
 
 export interface Order {
