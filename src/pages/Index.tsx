@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AboutSheet from "@/components/AboutSheet";
 import ContactSheet from "@/components/ContactSheet";
-import { products } from "@/data/products";
+import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import { useOrders } from "@/hooks/useOrders";
 import { useStore } from "@/contexts/StoreContext";
 import { sendOrderEmail } from "@/lib/emailjs";
