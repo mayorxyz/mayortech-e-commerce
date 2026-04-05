@@ -10,9 +10,12 @@ interface Props {
 }
 
 function condBadge(c: string) {
-  if (c === "uk") return <span className="cbadge uk">UK Used</span>;
-  if (c === "ng") return <span className="cbadge ng">NG Used</span>;
-  return <span className="cbadge new">Brand New</span>;
+  const colors = {
+    "Brand New": "bg-green-500",
+    "UK Used": "bg-amber-500", 
+    "Foreign Used": "bg-blue-500"
+  };
+  return <span className={`cbadge absolute top-2 left-2 text-white text-xs px-2 py-1 rounded ${colors[c as keyof typeof colors] || "bg-gray-500"}`}>{c}</span>;
 }
 
 export default function ProductCard({ product, isSaved, onSave, onOrder }: Props) {
@@ -42,6 +45,8 @@ export default function ProductCard({ product, isSaved, onSave, onOrder }: Props
 
       <div className="card-body">
         <div className="cname" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</div>
+        {product.brand && <div className="text-xs text-muted mb-1">{product.brand}</div>}
+        {product.tagline && <div className="text-sm text-foreground/80 mb-2">{product.tagline}</div>}
         <div className="cprice">{product.price}</div>
       </div>
 

@@ -11,13 +11,16 @@ import OrderModal from "@/components/OrderModal";
 const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
 
 function condLabel(c: string) {
-  return { new: "Brand New", uk: "UK Used", ng: "Nigerian Used" }[c] || "Brand New";
+  return c || "Brand New";
 }
 
 function condBadge(c: string) {
-  if (c === "uk") return <span className="cbadge uk">UK Used</span>;
-  if (c === "ng") return <span className="cbadge ng">NG Used</span>;
-  return <span className="cbadge new">Brand New</span>;
+  const colors = {
+    "Brand New": "bg-green-500",
+    "UK Used": "bg-amber-500",
+    "Foreign Used": "bg-blue-500"
+  };
+  return <span className={`inline-block text-white text-xs px-2 py-1 rounded ${colors[c as keyof typeof colors] || "bg-gray-500"}`}>{c}</span>;
 }
 
 export default function ProductDetailPage() {
@@ -102,12 +105,10 @@ export default function ProductDetailPage() {
 
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 5);
 
-  const specsList = product.specs.split("|").map((s) => {
-    const parts = s.split(":");
-    return parts.length >= 2
-      ? { label: parts[0].trim(), value: parts.slice(1).join(":").trim() }
-      : { label: "", value: s };
-  });
+  const specsList = Object.entries(product.specifications || {}).map(([key, value]) => ({
+    label: key,
+    value: value as string
+  }));
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -143,6 +144,7 @@ export default function ProductDetailPage() {
       <div className="dbody">
         <div className="dcat">{product.category.toUpperCase()}</div>
         <div className="dname">{product.name}</div>
+        {product.brand && <div className="text-sm text-muted mb-2">{product.brand}</div>}
         <div className="dprice">{product.price}</div>
         <div className="dmeta-row">
           <div className="dchip">{condLabel(product.condition)}</div>

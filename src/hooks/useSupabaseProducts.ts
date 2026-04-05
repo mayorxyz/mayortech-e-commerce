@@ -12,13 +12,16 @@ function mapSupabaseProduct(p: SupabaseProduct): Product {
     price: priceStr,
     priceNum,
     category: p.category,
-    condition: "new",
+    condition: (p.condition as "Brand New" | "UK Used" | "Foreign Used") || "Brand New",
     inStock: p.in_stock,
     image: p.image_url || "",
-    images: p.image_url ? [p.image_url] : [],
+    images: p.images || (p.image_url ? [p.image_url] : []),
     desc: p.description || "",
     specs: "",
     video_url: p.video_url || undefined,
+    brand: p.brand || "",
+    tagline: p.tagline || "",
+    specifications: p.specifications || {},
   };
 }
 
@@ -33,7 +36,7 @@ export function useSupabaseProducts() {
     try {
       const { data, error: err } = await supabase
         .from("products")
-        .select("*")
+        .select("id, name, price, category, description, image_url, video_url, in_stock, created_at, condition, images, specifications, brand, tagline")
         .order("created_at", { ascending: false });
 
       if (err) throw err;
@@ -64,6 +67,11 @@ export function useSupabaseProducts() {
     image_url: string;
     video_url?: string;
     in_stock: boolean;
+    condition: string;
+    images: string[];
+    specifications: Record<string, string>;
+    brand: string;
+    tagline: string;
   }) => {
     const { data, error } = await supabase
       .from("products")
@@ -86,6 +94,11 @@ export function useSupabaseProducts() {
     image_url: string;
     video_url: string;
     in_stock: boolean;
+    condition: string;
+    images: string[];
+    specifications: Record<string, string>;
+    brand: string;
+    tagline: string;
   }>) => {
     const { error } = await supabase
       .from("products")

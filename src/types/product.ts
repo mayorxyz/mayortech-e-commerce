@@ -4,13 +4,16 @@ export interface Product {
   name: string;
   price: string;
   priceNum: number;
-  condition: "new" | "uk" | "ng";
+  condition: "Brand New" | "UK Used" | "Foreign Used";
   inStock: boolean;
   image: string;
   images: string[];
   desc: string;
   specs: string;
   video_url?: string;
+  brand: string;
+  tagline: string;
+  specifications: Record<string, string>;
 }
 
 export interface SupabaseProduct {
@@ -23,6 +26,11 @@ export interface SupabaseProduct {
   video_url: string | null;
   in_stock: boolean;
   created_at: string;
+  condition: string;
+  images: string[];
+  specifications: Record<string, string>;
+  brand: string;
+  tagline: string;
 }
 
 export interface Order {
