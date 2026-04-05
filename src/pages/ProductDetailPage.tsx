@@ -1,9 +1,11 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { useOrders } from "@/hooks/useOrders";
 import { sendOrderEmail } from "@/lib/emailjs";
+import { supabase } from "@/lib/supabase";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
+import { Product } from "@/types/product";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
@@ -30,21 +32,108 @@ export default function ProductDetailPage() {
   const { savedItems, toggleSave, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
 
-  const product = useMemo(() => products.find((p) => p.id === id), [id]);
-  const [mainImg, setMainImg] = useState(product?.images[0] || "");
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mainImg, setMainImg] = useState("");
   const [activeThumb, setActiveThumb] = useState(0);
   const [bumpCart, setBumpCart] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
 
-  // Track recently viewed
-  useMemo(() => {
-    if (id) addRecentlyViewed(id);
-  }, [id]);
+  // Function to fetch product by ID
+  const fetchProduct = useCallback(async (productId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('products')
+        .select('id, name, price, category, description, image_url, video_url, in_stock, created_at, condition, images, specifications, brand, tagline')
+        .eq('id', productId)
+        .single();
 
-  if (!product) {
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+          // Product not found
+          setError('Product not found');
+        } else {
+          setError('Failed to load product');
+        }
+        setProduct(null);
+      } else if (data) {
+        // Map the data to Product format
+        const priceNum = data.price;
+        const priceStr = "₦" + priceNum.toLocaleString("en-NG");
+        const mappedProduct: Product = {
+          id: data.id,
+          name: data.name,
+          price: priceStr,
+          priceNum,
+          category: data.category,
+          condition: data.condition || "Brand New",
+          inStock: data.in_stock,
+          image: data.image_url || "",
+          images: data.images || (data.image_url ? [data.image_url] : []),
+          desc: data.description || "",
+          specs: "",
+          video_url: data.video_url || undefined,
+          brand: data.brand || "",
+          tagline: data.tagline || "",
+          specifications: data.specifications || {},
+        };
+        setProduct(mappedProduct);
+        setMainImg(mappedProduct.images[0] || "");
+      }
+    } catch (err) {
+      setError('Failed to load product');
+      setProduct(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch product when ID changes
+  useEffect(() => {
+    if (id) {
+      fetchProduct(id);
+      addRecentlyViewed(id);
+    } else {
+      setError('Invalid product ID');
+      setLoading(false);
+    }
+  }, [id, fetchProduct, addRecentlyViewed]);
+
+  // Show loading state
+  if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "var(--muted)" }}>Product not found.</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !product) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-6xl mb-4">😔</div>
+          <h2 className="text-xl font-bold mb-2">Product Not Found</h2>
+          <p className="text-muted mb-6">
+            {error === 'Product not found' 
+              ? "The product you're looking for doesn't exist or may have been removed."
+              : "We couldn't load this product. Please try again later."
+            }
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:brightness-90"
+          >
+            ← Back to Home
+          </button>
+        </div>
       </div>
     );
   }
