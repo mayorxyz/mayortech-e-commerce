@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
-import { products } from "@/data/products";
+import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 
