@@ -63,25 +63,34 @@ export default function ProductDetailPage() {
     setActiveThumb(idx);
   };
 
-  const handleOrderSubmit = async (data: { name: string; phone: string; email: string }) => {
-    if (!data.name || !data.phone || !data.email) {
+  const handleOrderSubmit = async (data: { name: string; phone: string; email: string; address: string }): Promise<boolean> => {
+    if (!data.name || !data.phone || !data.email || !data.address) {
       showToast("Please fill in all fields", "unbookmark", "!");
-      return;
+      return false;
     }
-    const orderData = {
-      productId: product.id,
+    const result = await placeOrder({
+      customer_name: data.name,
+      customer_phone: data.phone,
+      customer_address: data.address,
+      items: [{ productName: product.name, price: product.price, quantity: 1 }],
+      total_amount: product.priceNum,
+      status: "pending",
+    });
+    if (!result.success) {
+      showToast(result.error || "Failed to place order", "unbookmark", "!");
+      return false;
+    }
+    addOrderToHistory({
       productName: product.name,
       customerName: data.name,
       phone: data.phone,
       email: data.email,
       status: "pending",
       timestamp: Date.now(),
-    };
-    await placeOrder(orderData);
-    addOrderToHistory(orderData, product);
+    }, product);
     sendOrderEmail({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email });
-    setOrderOpen(false);
     showToast(`Order placed for <strong>${product.name}</strong> — we'll be in touch!`, "order", "✓");
+    return true;
   };
 
   const recentProducts = recentlyViewed

@@ -98,25 +98,35 @@ export default function Index() {
   }, [products, activeCategory, searchQuery, priceMin, priceMax, sortValue]);
 
   const handleOrderSubmit = useCallback(
-    async (data: { name: string; phone: string; email: string }) => {
-      if (!data.name || !data.phone || !data.email) {
+    async (data: { name: string; phone: string; email: string; address: string }): Promise<boolean> => {
+      if (!data.name || !data.phone || !data.email || !data.address) {
         showToast("Please fill in all fields", "unbookmark", "!");
-        return;
+        return false;
       }
-      if (!orderProduct) return;
+      if (!orderProduct) return false;
 
-      const orderData = {
-        productId: orderProduct.id,
+      const result = await placeOrder({
+        customer_name: data.name,
+        customer_phone: data.phone,
+        customer_address: data.address,
+        items: [{ productName: orderProduct.name, price: orderProduct.price, quantity: 1 }],
+        total_amount: orderProduct.priceNum,
+        status: "pending",
+      });
+
+      if (!result.success) {
+        showToast(result.error || "Failed to place order", "unbookmark", "!");
+        return false;
+      }
+
+      addOrderToHistory({
         productName: orderProduct.name,
         customerName: data.name,
         phone: data.phone,
         email: data.email,
         status: "pending",
         timestamp: Date.now(),
-      };
-
-      await placeOrder(orderData);
-      addOrderToHistory(orderData, orderProduct);
+      }, orderProduct);
 
       sendOrderEmail({
         productName: orderProduct.name,
@@ -125,12 +135,12 @@ export default function Index() {
         email: data.email,
       });
 
-      setOrderProduct(null);
       showToast(
         `Order placed for <strong>${orderProduct.name}</strong> — we'll be in touch!`,
         "order",
         "✓"
       );
+      return true;
     },
     [orderProduct, placeOrder, showToast, addOrderToHistory]
   );

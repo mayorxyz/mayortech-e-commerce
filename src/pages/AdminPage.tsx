@@ -12,7 +12,8 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [pw, setPw] = useState("");
   const { products, deleteProduct, addProduct } = useProducts();
-  const { orders } = useOrders();
+  const { placeOrder } = useOrders();
+  const orders: any[] = []; // orders now managed via Supabase directly
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("phones");
