@@ -15,7 +15,7 @@ function condBadge(c: string) {
     "UK Used": "bg-amber-500", 
     "Foreign Used": "bg-blue-500"
   };
-  return <span className={`cbadge absolute top-2 left-2 text-white text-xs px-2 py-1 rounded ${colors[c as keyof typeof colors] || "bg-gray-500"}`}>{c}</span>;
+  return <span className={`cbadge absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${colors[c as keyof typeof colors] || "bg-gray-500"}`}>{c}</span>;
 }
 
 export default function ProductCard({ product, isSaved, onSave, onOrder }: Props) {
