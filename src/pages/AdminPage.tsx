@@ -418,7 +418,6 @@ export default function AdminPage() {
                       Edit
                     </button>
                     <button
-<<<<<<< HEAD
                       onClick={() => handleToggleSold(p)}
                       className={`flex-1 py-2 rounded-lg text-xs font-medium cursor-pointer hover:brightness-90 ${
                         p.sold
@@ -430,9 +429,6 @@ export default function AdminPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
-=======
-                      onClick={() => deleteProduct(p.id)}
->>>>>>> ea94d85869ecab6cbaf265bbd0ae2c7018630639
                       className="flex-1 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-medium cursor-pointer hover:brightness-90"
                     >
                       Delete
