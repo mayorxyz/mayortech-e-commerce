@@ -20,7 +20,7 @@ export const products: Product[] = [
     specs: "Display:6.8\" AMOLED 2X 120Hz|Chip:Snapdragon 8 Gen 3|Camera:200MP + 50MP + 12MP + 10MP|Battery:5000mAh|Storage:256GB / 512GB|OS:Android 14|S Pen:Built-in",
   },
   {
-    id: "3", category: "phones", name: "iPhone 13 (UK Used)", price: "₦480,000", priceNum: 480000, condition: "uk", inStock: true,
+    id: "3", category: "phones", name: "iPhone 13 (UK Used)", price: "₦480,000", priceNum: 480000, condition: "UK Used", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-pink-select-2021?wid=940&hei=1112&fmt=png-alpha&.v=1645572386470",
     images: ["https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-pink-select-2021?wid=940&hei=1112&fmt=png-alpha&.v=1645572386470"],
     desc: "A premium UK-used iPhone 13 in excellent condition. The A15 Bionic chip still runs everything smoothly, and the dual camera system produces stunning photos. Comes with original accessories and is fully unlocked for all networks.",
