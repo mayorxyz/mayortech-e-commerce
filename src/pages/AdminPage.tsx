@@ -68,7 +68,6 @@ export default function AdminPage() {
       } else {
         await addProduct({
           name, price: priceNum, category, description,
-<<<<<<< HEAD
           image_url: imageUrlsToUse[0] || "", video_url: videoUrl || undefined, in_stock: inStock, sold,
           condition, images: imageUrlsToUse, specifications: specsObj, brand, tagline,
         });
