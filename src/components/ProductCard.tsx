@@ -4,21 +4,29 @@ import { Product } from "@/types/product";
 
 interface Props {
   product: Product;
-  isSaved: boolean;
-  onSave: () => void;
+  inCart: boolean;
+  onAddToCart: () => void;
   onOrder: () => void;
 }
 
 function condBadge(c: string) {
   const colors = {
     "Brand New": "bg-green-500",
-    "UK Used": "bg-amber-500", 
-    "Foreign Used": "bg-blue-500"
+    "UK Used": "bg-amber-500",
+    "Foreign Used": "bg-blue-500",
   };
-  return <span className={`cbadge absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${colors[c as keyof typeof colors] || "bg-gray-500"}`}>{c}</span>;
+  return (
+    <span
+      className={`cbadge absolute top-2 left-2 text-white text-xs px-2 py-1 rounded ${
+        colors[c as keyof typeof colors] || "bg-gray-500"
+      }`}
+    >
+      {c}
+    </span>
+  );
 }
 
-export default function ProductCard({ product, isSaved, onSave, onOrder }: Props) {
+export default function ProductCard({ product, inCart, onAddToCart, onOrder }: Props) {
   const [descOpen, setDescOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -33,6 +41,7 @@ export default function ProductCard({ product, isSaved, onSave, onOrder }: Props
       <div className="card-img" onClick={() => navigate(`/product/${product.id}`)}>
         <span className="ctag">{product.category}</span>
         {condBadge(product.condition)}
+        {product.sold && <span className="sold-badge">Sold</span>}
         <img
           src={product.image}
           alt={product.name}
@@ -40,7 +49,7 @@ export default function ProductCard({ product, isSaved, onSave, onOrder }: Props
             (e.target as HTMLImageElement).style.opacity = "0.2";
           }}
         />
-        {!product.inStock && <div className="sold-ov">Sold Out</div>}
+        {(!product.inStock || product.sold) && <div className="sold-ov">Sold Out</div>}
       </div>
 
       <div className="card-body">
@@ -71,12 +80,13 @@ export default function ProductCard({ product, isSaved, onSave, onOrder }: Props
 
       <div className="cact">
         <button
-          className={`bsave${isSaved ? " saved" : ""}`}
-          onClick={onSave}
+          className={`bsave${inCart ? " saved" : ""}`}
+          onClick={onAddToCart}
+          disabled={!product.inStock || product.sold}
         >
-          {isSaved ? "✓" : "+"}
+          {inCart ? "✔ In Cart" : "Add to Cart"}
         </button>
-        {product.inStock ? (
+        {product.inStock && !product.sold ? (
           <button className="border-btn" onClick={onOrder}>Order Now</button>
         ) : (
           <button className="bsold" disabled>Sold Out</button>

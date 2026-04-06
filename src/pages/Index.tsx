@@ -31,10 +31,10 @@ function useColumns() {
   return cols;
 }
 
-function MasonryGrid({ items, savedItems, toggleSave, setOrderProduct }: {
+function MasonryGrid({ items, cartItems, addToCart, setOrderProduct }: {
   items: Product[];
-  savedItems: Set<string>;
-  toggleSave: (p: Product) => void;
+  cartItems: Record<string, { product: Product; quantity: number }>;
+  addToCart: (p: Product) => void;
   setOrderProduct: (p: Product) => void;
 }) {
   const cols = useColumns();
@@ -48,8 +48,8 @@ function MasonryGrid({ items, savedItems, toggleSave, setOrderProduct }: {
             <ProductCard
               key={p.id}
               product={p}
-              isSaved={savedItems.has(p.id)}
-              onSave={() => toggleSave(p)}
+              inCart={!!cartItems[p.id]}
+              onAddToCart={() => addToCart(p)}
               onOrder={() => setOrderProduct(p)}
             />
           ))}
@@ -62,7 +62,7 @@ function MasonryGrid({ items, savedItems, toggleSave, setOrderProduct }: {
 export default function Index() {
   const { products } = useSupabaseProducts();
   const { placeOrder } = useOrders();
-  const { savedItems, toasts, showToast, toggleSave, addOrderToHistory } = useStore();
+  const { cartItems, toasts, showToast, addToCart, addOrderToHistory } = useStore();
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");

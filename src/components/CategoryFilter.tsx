@@ -1,10 +1,10 @@
 const categories = [
   { key: "all", label: "All" },
-  { key: "phones", label: "📱 Phones" },
-  { key: "laptops", label: "💻 Laptops" },
-  { key: "earphones", label: "🎧 Earphones" },
-  { key: "powerbanks", label: "🔋 Power Banks" },
-  { key: "accessories", label: "🔌 Accessories" },
+  { key: "phones", label: " Phones" },
+  { key: "laptops", label: " Laptops" },
+  { key: "earphones", label: " Earphones" },
+  { key: "powerbanks", label: " Power Banks" },
+  { key: "accessories", label: " Accessories" },
   { key: "others", label: "Others" },
 ];
 

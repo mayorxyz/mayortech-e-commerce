@@ -14,6 +14,7 @@ export interface Product {
   brand: string;
   tagline: string;
   specifications: Record<string, string>;
+  sold: boolean;
 }
 
 export interface SupabaseProduct {
@@ -25,6 +26,7 @@ export interface SupabaseProduct {
   image_url: string;
   video_url: string | null;
   in_stock: boolean;
+  sold: boolean;
   created_at: string;
   condition: string;
   images: string[];

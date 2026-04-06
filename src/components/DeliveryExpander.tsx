@@ -16,11 +16,11 @@ export default function DeliveryExpander() {
       <div className={`deliv-body${open ? " open" : ""}`}>
         <div className="deliv-inner">
           <strong>Port Harcourt delivery</strong>
-          Same-day delivery within Port Harcourt for orders confirmed before 2pm. We bring it directly to you.
+          We deliver within 1–2 business days across Port Harcourt. We bring it directly to you.
         </div>
         <div className="deliv-inner" style={{ borderTop: "1px solid var(--border)", paddingTop: 12, marginTop: 2 }}>
           <strong>Nationwide delivery</strong>
-          1–3 business days via GIG Logistics or courier of your choice. We ship to all states.
+          1–7 business days via GIG Logistics or courier of your choice. We ship to all states.
         </div>
         <div className="deliv-inner" style={{ borderTop: "1px solid var(--border)", paddingTop: 12, marginTop: 2 }}>
           <strong>Payment</strong>

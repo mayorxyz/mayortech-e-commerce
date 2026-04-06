@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode } from "react";
 import { Product, Order } from "@/types/product";
 import { useToastQueue, ToastType } from "@/hooks/useToastQueue";
 
@@ -6,16 +6,21 @@ interface OrderRecord extends Order {
   placedAt: string;
 }
 
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 interface StoreContextType {
-  savedItems: Set<string>;
-  savedProducts: Product[];
+  cartItems: Record<string, CartItem>;
   cartCount: number;
   orderHistory: OrderRecord[];
   recentlyViewed: string[];
   toasts: ReturnType<typeof useToastQueue>["toasts"];
   showToast: (message: string, type?: ToastType, icon?: string) => void;
-  toggleSave: (product: Product) => void;
-  removeSaved: (productId: string) => void;
+  addToCart: (product: Product, quantity?: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
   addOrderToHistory: (order: Order, product: Product) => void;
   addRecentlyViewed: (productId: string) => void;
   theme: "dark" | "light";
@@ -26,8 +31,7 @@ const StoreContext = createContext<StoreContextType | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const { toasts, showToast } = useToastQueue();
-  const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
-  const [savedProducts, setSavedProducts] = useState<Product[]>([]);
+  const [cartItems, setCartItems] = useState<Record<string, CartItem>>({});
   const [orderHistory, setOrderHistory] = useState<OrderRecord[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<string[]>([]);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
@@ -51,33 +55,57 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   }, []);
 
-  const toggleSave = useCallback(
-    (product: Product) => {
-      setSavedItems((prev) => {
-        const next = new Set(prev);
-        if (next.has(product.id)) {
-          next.delete(product.id);
-          setSavedProducts((sp) => sp.filter((p) => p.id !== product.id));
-          showToast("Removed from saved items", "unbookmark", "−");
+  const addToCart = useCallback(
+    (product: Product, quantity = 1) => {
+      setCartItems((prev) => {
+        const next = { ...prev };
+        const existing = next[product.id];
+        if (existing) {
+          next[product.id] = {
+            product,
+            quantity: Math.max(1, existing.quantity + quantity),
+          };
         } else {
-          next.add(product.id);
-          setSavedProducts((sp) => [...sp, product]);
-          showToast(`<strong>${product.name}</strong> bookmarked`, "bookmark", "✓");
+          next[product.id] = { product, quantity: Math.max(1, quantity) };
         }
         return next;
       });
+      showToast("Added to cart", "cart", "✓");
     },
     [showToast]
   );
 
-  const removeSaved = useCallback((productId: string) => {
-    setSavedItems((prev) => {
-      const next = new Set(prev);
-      next.delete(productId);
-      return next;
-    });
-    setSavedProducts((sp) => sp.filter((p) => p.id !== productId));
-  }, []);
+  const removeFromCart = useCallback(
+    (productId: string) => {
+      setCartItems((prev) => {
+        const next = { ...prev };
+        delete next[productId];
+        return next;
+      });
+      showToast("Removed from cart", "remove", "−");
+    },
+    [showToast]
+  );
+
+  const updateCartQuantity = useCallback(
+    (productId: string, quantity: number) => {
+      if (quantity <= 0) {
+        removeFromCart(productId);
+        return;
+      }
+      setCartItems((prev) => {
+        if (!prev[productId]) return prev;
+        return {
+          ...prev,
+          [productId]: {
+            product: prev[productId].product,
+            quantity,
+          },
+        };
+      });
+    },
+    [removeFromCart]
+  );
 
   const addOrderToHistory = useCallback((order: Order, _product: Product) => {
     setOrderHistory((prev) => [
@@ -98,20 +126,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const cartCount = savedItems.size;
+  const cartCount = useMemo(
+    () => Object.values(cartItems).reduce((sum, item) => sum + item.quantity, 0),
+    [cartItems]
+  );
 
   return (
     <StoreContext.Provider
       value={{
-        savedItems,
-        savedProducts,
+        cartItems,
         cartCount,
         orderHistory,
         recentlyViewed,
         toasts,
         showToast,
-        toggleSave,
-        removeSaved,
+        addToCart,
+        removeFromCart,
+        updateCartQuantity,
         addOrderToHistory,
         addRecentlyViewed,
         theme,

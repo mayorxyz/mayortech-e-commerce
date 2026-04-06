@@ -43,12 +43,14 @@ export default function Header({ onAbout, onContact }: Props) {
                 <div className="tog-t" />
               </label>
             </div>
-            <div className="ddi" onClick={() => { navigate("/saved"); setMenuOpen(false); }}>
+            <div className="ddi" onClick={() => { navigate("/cart"); setMenuOpen(false); }}>
               <div className="ddi-l">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                  <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
                 </svg>
-                My saved items
+                My cart
                 <span style={{ marginLeft: 4, background: "var(--accent)", color: "#0e0e0f", borderRadius: 50, padding: "1px 7px", fontSize: 11, fontWeight: 700 }}>{cartCount}</span>
               </div>
             </div>

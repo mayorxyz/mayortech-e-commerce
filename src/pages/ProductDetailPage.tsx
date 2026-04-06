@@ -29,7 +29,7 @@ export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { products } = useSupabaseProducts();
-  const { savedItems, toggleSave, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast, addOrderToHistory } = useStore();
+  const { cartItems, addToCart, cartCount, recentlyViewed, addRecentlyViewed, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -138,10 +138,10 @@ export default function ProductDetailPage() {
     );
   }
 
-  const isSaved = savedItems.has(product.id);
+  const isInCart = !!cartItems[product.id];
 
-  const handleSave = () => {
-    toggleSave(product);
+  const handleAddToCart = () => {
+    addToCart(product);
     setBumpCart(true);
     setTimeout(() => setBumpCart(false), 220);
   };
@@ -207,8 +207,12 @@ export default function ProductDetailPage() {
         <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
           Mayor<span>Tech</span>
         </div>
-        <button className="cart-btn-sm" onClick={() => navigate("/saved")}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+        <button className="cart-btn-sm" onClick={() => navigate("/cart") }>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+          </svg>
           <div className={`ccnt${bumpCart ? " bump" : ""}`}>{cartCount}</div>
         </button>
       </div>
@@ -226,8 +230,11 @@ export default function ProductDetailPage() {
             ))}
           </div>
         )}
-        <div className="gallery-badges">{condBadge(product.condition)}</div>
-        {!product.inStock && <div className="gallery-sold">Sold Out</div>}
+        <div className="gallery-badges">
+          {condBadge(product.condition)}
+          {product.sold && <span className="gallery-sold-badge">Sold</span>}
+        </div>
+        {(!product.inStock || product.sold) && <div className="gallery-sold">Sold Out</div>}
       </div>
 
       <div className="dbody">
@@ -307,10 +314,10 @@ export default function ProductDetailPage() {
       <div style={{ height: 84 }} />
 
       <div className="dcta">
-        <button className={`bs2${isSaved ? " saved" : ""}`} onClick={handleSave}>
-          {isSaved ? "✓" : "+"}
+        <button className={`bs2${isInCart ? " saved" : ""}`} onClick={handleAddToCart} disabled={!product.inStock || product.sold}>
+          {isInCart ? "✓ In Cart" : "Add to Cart"}
         </button>
-        {product.inStock ? (
+        {!product.sold && product.inStock ? (
           <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
         ) : (
           <button className="bs3" disabled>Currently Sold Out</button>

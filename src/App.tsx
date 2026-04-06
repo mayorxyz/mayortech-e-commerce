@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { StoreProvider } from "@/contexts/StoreContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
-import SavedPage from "./pages/SavedPage";
+import CartPage from "./pages/SavedPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import NotFound from "./pages/NotFound";
@@ -19,7 +19,7 @@ const App = () => (
           <StoreProvider>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/saved" element={<SavedPage />} />
+              <Route path="/cart" element={<CartPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/admin" element={<ProtectedAdminRoute />} />
               <Route path="*" element={<NotFound />} />

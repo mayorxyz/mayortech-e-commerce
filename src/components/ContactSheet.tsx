@@ -1,4 +1,4 @@
-const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
+const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348144922398";
 const INSTAGRAM = import.meta.env.VITE_ADMIN_INSTAGRAM || "mayortech";
 const TIKTOK = import.meta.env.VITE_ADMIN_TIKTOK || "mayortech";
 const EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "hello@mayortech.ng";
