@@ -48,7 +48,7 @@ export const products: Product[] = [
     specs: "Driver:Custom Apple H2|ANC:2nd gen Active Noise Cancellation|Battery:6hr + 24hr case|Case:USB-C + MagSafe|Rating:IP54 water resistant|Fit:XS / S / M / L ear tips",
   },
   {
-    id: "7", category: "powerbanks", name: "Anker 733 GaNPrime", price: "₦68,000", priceNum: 68000, condition: "new", inStock: true,
+    id: "7", category: "powerbanks", name: "Anker 733 GaNPrime", price: "₦68,000", priceNum: 68000, condition: "Brand New", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://m.media-amazon.com/images/I/61bnMLM93jL._AC_SX679_.jpg",
     images: ["https://m.media-amazon.com/images/I/61bnMLM93jL._AC_SX679_.jpg"],
     desc: "The Anker 733 is both a power bank and a wall charger in one. GaN technology allows it to charge a laptop, a phone, and another device simultaneously. The built-in USB-C cable means you never have to carry an extra cable.",
