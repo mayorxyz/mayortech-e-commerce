@@ -55,7 +55,7 @@ export const products: Product[] = [
     specs: "Capacity:10,000mAh|Max output:65W|Built-in cable:USB-C|Ports:2x USB-C + 1x USB-A|Wall plug:Built-in foldable|Technology:GaNPrime|Weight:227g",
   },
   {
-    id: "8", category: "phones", name: "Tecno Camon 30 Pro", price: "₦185,000", priceNum: 185000, condition: "new", inStock: true,
+    id: "8", category: "phones", name: "Tecno Camon 30 Pro", price: "₦185,000", priceNum: 185000, condition: "Brand New", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://fdn2.gsmarena.com/vv/pics/tecno/tecno-camon-30-pro-5g-1.jpg",
     images: ["https://fdn2.gsmarena.com/vv/pics/tecno/tecno-camon-30-pro-5g-1.jpg"],
     desc: "The Tecno Camon 30 Pro offers flagship features at an accessible price. 50MP triple camera with AI, 5G connectivity and a 5000mAh battery — handles everything Nigerian daily life demands.",

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
-export type ToastType = "bookmark" | "unbookmark" | "order";
+export type ToastType = "bookmark" | "unbookmark" | "order" | "cart" | "remove";
 
 export interface ToastItem {
   id: number;

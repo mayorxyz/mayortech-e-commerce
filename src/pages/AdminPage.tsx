@@ -312,7 +312,7 @@ export default function AdminPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => deleteProduct(p.id)}
                       className="flex-1 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-medium cursor-pointer hover:brightness-90"
                     >
                       Delete

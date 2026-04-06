@@ -79,6 +79,7 @@ export default function ProductDetailPage() {
           brand: data.brand || "",
           tagline: data.tagline || "",
           specifications: data.specifications || {},
+          sold: data.sold ?? false,
         };
         setProduct(mappedProduct);
         setMainImg(mappedProduct.images[0] || "");

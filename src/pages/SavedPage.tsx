@@ -52,7 +52,7 @@ export default function SavedPage() {
                       <div className="scard-body">
                         <div className="scard-name" onClick={() => navigate(`/product/${p.id}`)}>{p.name}</div>
                         <div className="scard-price">{p.price}</div>
-                        <button className="brem" onClick={() => { toggleSave(p); }}>✕ Remove</button>
+                        <button className="brem" onClick={() => {}}>✕ Remove</button>
                       </div>
                     </div>
                   ))}
