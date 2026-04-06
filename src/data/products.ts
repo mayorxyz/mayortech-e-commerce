@@ -13,7 +13,7 @@ export const products: Product[] = [
     specs: "Display:6.7\" OLED ProMotion|Chip:A17 Pro (3nm)|Camera:48MP + 12MP + 12MP|Battery:4422mAh|Storage:256GB / 512GB / 1TB|OS:iOS 17|Connectivity:5G + WiFi 6E",
   },
   {
-    id: "2", category: "phones", name: "Samsung Galaxy S24 Ultra", price: "₦1,180,000", priceNum: 1180000, condition: "new", inStock: true,
+    id: "2", category: "phones", name: "Samsung Galaxy S24 Ultra", price: "₦1,180,000", priceNum: 1180000, condition: "Brand New", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://images.samsung.com/is/image/samsung/p6pim/uk/2401/gallery/uk-galaxy-s24-ultra-s928-sm-s928bzkgbtu-thumb-539566655",
     images: ["https://images.samsung.com/is/image/samsung/p6pim/uk/2401/gallery/uk-galaxy-s24-ultra-s928-sm-s928bzkgbtu-thumb-539566655"],
     desc: "The Galaxy S24 Ultra redefines what a smartphone can do. Powered by the Snapdragon 8 Gen 3, it features a jaw-dropping 200MP quad-camera system, a built-in S Pen for precision input, and a massive 5000mAh battery. The titanium frame gives it a premium feel that matches its performance.",
