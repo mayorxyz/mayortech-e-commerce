@@ -34,10 +34,10 @@ export default function ProductCard({ product, inCart, onAddToCart, onOrder }: P
   return (
     <div className="card">
       <div className="card-img" onClick={() => navigate(`/product/${product.id}`)}>
-        <span className="ctag">{product.category}</span>
+        <span className="absolute top-2 left-2 bg-gray-700/80 text-white text-[10px] px-2 py-0.5 rounded-full z-10">{product.category}</span>
         {condBadge(product.condition)}
         {product.sold && (
-          <span className="absolute top-2 right-2 bg-destructive text-white text-xs px-2 py-1 rounded font-bold z-10">
+          <span className="absolute bottom-2 right-2 bg-destructive text-white text-[10px] px-2 py-0.5 rounded-full font-bold z-10">
             Sold
           </span>
         )}
