@@ -2,7 +2,7 @@ import { Product } from "@/types/product";
 
 export const products: Product[] = [
   {
-    id: "1", category: "phones", name: "iPhone 15 Pro Max", price: "₦1,350,000", priceNum: 1350000, condition: "new", inStock: true,
+    id: "1", category: "phones", name: "iPhone 15 Pro Max", price: "₦1,350,000", priceNum: 1350000, condition: "Brand New", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1693009279096",
     images: [
       "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1693009279096",
