@@ -47,7 +47,7 @@ export default function ProductDetailPage() {
     try {
       const { data, error: fetchError } = await supabase
         .from('products')
-        .select('id, name, price, category, description, image_url, video_url, in_stock, created_at, condition, images, specifications, brand, tagline')
+        .select('id, name, price, category, description, image_url, video_url, in_stock, sold, created_at, condition, images, specifications, brand, tagline')
         .eq('id', productId)
         .single();
 
