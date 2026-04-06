@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { useOrders } from "@/hooks/useOrders";
@@ -9,21 +9,6 @@ import { Product } from "@/types/product";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
-
-const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
-
-function condLabel(c: string) {
-  return c || "Brand New";
-}
-
-function condBadge(c: string) {
-  const colors = {
-    "Brand New": "bg-green-500",
-    "UK Used": "bg-amber-500",
-    "Foreign Used": "bg-blue-500"
-  };
-  return <span className={`inline-block text-white text-xs px-2 py-1 rounded ${colors[c as keyof typeof colors] || "bg-gray-500"}`}>{c}</span>;
-}
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,33 +25,25 @@ export default function ProductDetailPage() {
   const [bumpCart, setBumpCart] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
 
-  // Function to fetch product by ID
   const fetchProduct = useCallback(async (productId: string) => {
     setLoading(true);
     setError(null);
     try {
       const { data, error: fetchError } = await supabase
-        .from('products')
-        .select('id, name, price, category, description, image_url, video_url, in_stock, sold, created_at, condition, images, specifications, brand, tagline')
-        .eq('id', productId)
+        .from("products")
+        .select("id, name, price, category, description, image_url, video_url, in_stock, sold, created_at, condition, images, specifications, brand, tagline")
+        .eq("id", productId)
         .single();
 
       if (fetchError) {
-        if (fetchError.code === 'PGRST116') {
-          // Product not found
-          setError('Product not found');
-        } else {
-          setError('Failed to load product');
-        }
+        setError(fetchError.code === "PGRST116" ? "Product not found" : "Failed to load product");
         setProduct(null);
       } else if (data) {
-        // Map the data to Product format
         const priceNum = data.price;
-        const priceStr = "₦" + priceNum.toLocaleString("en-NG");
-        const mappedProduct: Product = {
+        const mapped: Product = {
           id: data.id,
           name: data.name,
-          price: priceStr,
+          price: "₦" + priceNum.toLocaleString("en-NG"),
           priceNum,
           category: data.category,
           condition: data.condition || "Brand New",
@@ -81,41 +58,38 @@ export default function ProductDetailPage() {
           specifications: data.specifications || {},
           sold: data.sold ?? false,
         };
-        setProduct(mappedProduct);
-        setMainImg(mappedProduct.images[0] || "");
+        setProduct(mapped);
+        setMainImg(mapped.images[0] || "");
       }
-    } catch (err) {
-      setError('Failed to load product');
+    } catch {
+      setError("Failed to load product");
       setProduct(null);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch product when ID changes
   useEffect(() => {
     if (id) {
       fetchProduct(id);
       addRecentlyViewed(id);
     } else {
-      setError('Invalid product ID');
+      setError("Invalid product ID");
       setLoading(false);
     }
   }, [id, fetchProduct, addRecentlyViewed]);
 
-  // Show loading state
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
           <p className="text-muted">Loading product...</p>
         </div>
       </div>
     );
   }
 
-  // Show error state
   if (error || !product) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -123,15 +97,11 @@ export default function ProductDetailPage() {
           <div className="text-6xl mb-4">😔</div>
           <h2 className="text-xl font-bold mb-2">Product Not Found</h2>
           <p className="text-muted mb-6">
-            {error === 'Product not found' 
+            {error === "Product not found"
               ? "The product you're looking for doesn't exist or may have been removed."
-              : "We couldn't load this product. Please try again later."
-            }
+              : "We couldn't load this product. Please try again later."}
           </p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:brightness-90"
-          >
+          <button onClick={() => navigate("/")} className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:brightness-90">
             ← Back to Home
           </button>
         </div>
@@ -140,6 +110,7 @@ export default function ProductDetailPage() {
   }
 
   const isInCart = !!cartItems[product.id];
+  const isSold = product.sold || !product.inStock;
 
   const handleAddToCart = () => {
     addToCart(product);
@@ -150,11 +121,6 @@ export default function ProductDetailPage() {
   const shareProduct = () => {
     const txt = encodeURIComponent(`Check out ${product.name} on MayorTech — ${product.price}. ${window.location.href}`);
     window.open(`https://wa.me/?text=${txt}`, "_blank");
-  };
-
-  const setThumb = (img: string, idx: number) => {
-    setMainImg(img);
-    setActiveThumb(idx);
   };
 
   const handleOrderSubmit = async (data: { name: string; phone: string; email: string; address: string }): Promise<boolean> => {
@@ -174,31 +140,21 @@ export default function ProductDetailPage() {
       showToast(result.error || "Failed to place order", "unbookmark", "!");
       return false;
     }
-    addOrderToHistory({
-      productName: product.name,
-      customerName: data.name,
-      phone: data.phone,
-      email: data.email,
-      status: "pending",
-      timestamp: Date.now(),
-    }, product);
+    addOrderToHistory({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email, status: "pending", timestamp: Date.now() }, product);
     sendOrderEmail({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email });
     showToast(`Order placed for <strong>${product.name}</strong> — we'll be in touch!`, "order", "✓");
     return true;
   };
 
-  const recentProducts = recentlyViewed
-    .filter((x) => x !== id)
-    .slice(0, 4)
-    .map((rid) => products.find((p) => p.id === rid))
-    .filter(Boolean);
+  const condColors: Record<string, string> = {
+    "Brand New": "bg-green-500",
+    "UK Used": "bg-amber-500",
+    "Foreign Used": "bg-blue-500",
+  };
 
+  const specsList = Object.entries(product.specifications || {});
+  const recentProducts = recentlyViewed.filter((x) => x !== id).slice(0, 4).map((rid) => products.find((p) => p.id === rid)).filter(Boolean);
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 5);
-
-  const specsList = Object.entries(product.specifications || {}).map(([key, value]) => ({
-    label: key,
-    value: value as string
-  }));
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -208,7 +164,7 @@ export default function ProductDetailPage() {
         <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
           Mayor<span>Tech</span>
         </div>
-        <button className="cart-btn-sm" onClick={() => navigate("/cart") }>
+        <button className="cart-btn-sm" onClick={() => navigate("/cart")}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
             <circle cx="9" cy="21" r="1" />
@@ -218,6 +174,7 @@ export default function ProductDetailPage() {
         </button>
       </div>
 
+      {/* Image Gallery */}
       <div className="gallery">
         <div className="gallery-main">
           <img src={mainImg || product.images[0]} alt={product.name} onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }} />
@@ -225,26 +182,29 @@ export default function ProductDetailPage() {
         {product.images.length > 1 && (
           <div className="gallery-thumbs">
             {product.images.map((img, i) => (
-              <div key={i} className={`thumb${activeThumb === i ? " active" : ""}`} onClick={() => setThumb(img, i)}>
+              <div key={i} className={`thumb${activeThumb === i ? " active" : ""}`} onClick={() => { setMainImg(img); setActiveThumb(i); }}>
                 <img src={img} alt="" />
               </div>
             ))}
           </div>
         )}
         <div className="gallery-badges">
-          {condBadge(product.condition)}
-          {product.sold && <span className="gallery-sold-badge">Sold</span>}
+          <span className={`inline-block text-white text-xs px-2 py-1 rounded ${condColors[product.condition] || "bg-gray-500"}`}>
+            {product.condition}
+          </span>
+          {product.sold && <span className="inline-block bg-destructive text-white text-xs px-2 py-1 rounded font-bold ml-2">Sold</span>}
         </div>
-        {(!product.inStock || product.sold) && <div className="gallery-sold">Sold Out</div>}
+        {isSold && <div className="gallery-sold">Sold Out</div>}
       </div>
 
       <div className="dbody">
         <div className="dcat">{product.category.toUpperCase()}</div>
         <div className="dname">{product.name}</div>
         {product.brand && <div className="text-sm text-muted mb-2">{product.brand}</div>}
+        {product.tagline && <div className="text-sm text-muted-foreground/70 mb-2">{product.tagline}</div>}
         <div className="dprice">{product.price}</div>
         <div className="dmeta-row">
-          <div className="dchip">{condLabel(product.condition)}</div>
+          <div className="dchip">{product.condition || "Brand New"}</div>
           <div className="dchip" style={{ color: product.inStock ? "#64dc82" : "var(--muted)" }}>
             {product.inStock ? "✓ In Stock" : "✗ Out of Stock"}
           </div>
@@ -260,16 +220,26 @@ export default function ProductDetailPage() {
         <div className="ddiv" />
         <div className="dsec-title">About this device</div>
         <div className="ddesc">{product.desc}</div>
-        <div className="ddiv" />
-        <div className="dsec-title">Specifications</div>
-        <div className="specs-g">
-          {specsList.map((s, i) => (
-            <div key={i} className="spec-chip">
-              {s.label && <span>{s.label}</span>}
-              {s.value}
+
+        {specsList.length > 0 && (
+          <>
+            <div className="ddiv" />
+            <div className="dsec-title">Specifications</div>
+            <div className="overflow-hidden rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <tbody>
+                  {specsList.map(([key, value], i) => (
+                    <tr key={i} className={i % 2 === 0 ? "bg-surface" : "bg-surface2"}>
+                      <td className="py-2.5 px-3 font-medium text-foreground w-2/5">{key}</td>
+                      <td className="py-2.5 px-3 text-muted-foreground">{value as string}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
+          </>
+        )}
+
         <div className="ddiv" />
         <div className="dsec-title">Delivery &amp; Payment</div>
         <div className="deliv-box">
@@ -315,24 +285,22 @@ export default function ProductDetailPage() {
       <div style={{ height: 84 }} />
 
       <div className="dcta">
-        <button className={`bs2${isInCart ? " saved" : ""}`} onClick={handleAddToCart} disabled={!product.inStock || product.sold}>
-          {isInCart ? "✓ In Cart" : "Add to Cart"}
-        </button>
-        {!product.sold && product.inStock ? (
-          <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
+        {isSold ? (
+          <button className="bs3 w-full" disabled>Sold Out</button>
         ) : (
-          <button className="bs3" disabled>Currently Sold Out</button>
+          <>
+            <button className={`bs2${isInCart ? " saved" : ""}`} onClick={handleAddToCart}>
+              {isInCart ? "✓ In Cart" : "Add to Cart"}
+            </button>
+            <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
+          </>
         )}
       </div>
 
       <WhatsAppFloat className="detail-wa" />
 
       {orderOpen && (
-        <OrderModal
-          product={product}
-          onClose={() => setOrderOpen(false)}
-          onSubmit={handleOrderSubmit}
-        />
+        <OrderModal product={product} onClose={() => setOrderOpen(false)} onSubmit={handleOrderSubmit} />
       )}
     </div>
   );
