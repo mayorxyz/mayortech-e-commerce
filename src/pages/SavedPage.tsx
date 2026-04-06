@@ -11,7 +11,7 @@ export default function SavedPage() {
   const { products } = useSupabaseProducts();
   const navigate = useNavigate();
 
-  const savedList = products.filter((p) => savedItems.has(p.id));
+  const savedList: typeof products = [];
 
   return (
     <div style={{ minHeight: "100vh" }}>
