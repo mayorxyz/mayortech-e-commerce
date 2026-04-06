@@ -58,17 +58,26 @@ export default function ProductCard({ product, inCart, onAddToCart, onOrder }: P
         <div className="flex items-end justify-between">
           <div className="cprice">{product.price}</div>
           {!isSold && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
-              className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
-                inCart
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
-              }`}
-              aria-label="Add to cart"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={(e) => { e.stopPropagation(); onOrder(); }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 text-xs rounded-md font-medium transition-colors"
+                aria-label="Order now"
+              >
+                Order Now
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
+                className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+                  inCart
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+                }`}
+                aria-label="Add to cart"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
           )}
           {isSold && (
             <span className="text-xs text-destructive font-semibold">Sold Out</span>

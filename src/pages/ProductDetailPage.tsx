@@ -289,10 +289,10 @@ export default function ProductDetailPage() {
           <button className="bs3 w-full" disabled>Sold Out</button>
         ) : (
           <>
+            <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
             <button className={`bs2${isInCart ? " saved" : ""}`} onClick={handleAddToCart}>
               {isInCart ? "✓ In Cart" : "Add to Cart"}
             </button>
-            <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
           </>
         )}
       </div>
