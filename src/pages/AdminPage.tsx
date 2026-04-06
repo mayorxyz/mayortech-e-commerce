@@ -68,7 +68,7 @@ export default function AdminPage() {
         await addProduct({
           name, price: priceNum, category, description,
           image_url: imageUrls[0] || "", video_url: videoUrl || undefined, in_stock: inStock,
-          condition, images: imageUrls, specifications: specsObj, brand, tagline,
+          sold: false, condition, images: imageUrls, specifications: specsObj, brand, tagline,
         });
         setMsg("Product added!");
       }
