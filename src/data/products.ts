@@ -34,7 +34,7 @@ export const products: Product[] = [
     specs: "Display:13.6\" Liquid Retina|Chip:Apple M3 (8-core)|RAM:8GB unified memory|Storage:256GB SSD|Battery:Up to 18 hours|OS:macOS Sonoma|Weight:1.24 kg",
   },
   {
-    id: "5", category: "laptops", name: "Dell XPS 15", price: "₦1,490,000", priceNum: 1490000, condition: "new", inStock: false,
+    id: "5", category: "laptops", name: "Dell XPS 15", price: "₦1,490,000", priceNum: 1490000, condition: "Brand New", inStock: false, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/xps-notebooks/xps-15-9530/media-gallery/black/notebook-xps-15-9530-black-gallery-4.psd?fmt=pjpg&pscan=auto&scl=1&wid=4000&hei=3000&qlt=100,1&resMode=sharp2&size=4000,3000&chrss=full",
     images: ["https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/xps-notebooks/xps-15-9530/media-gallery/black/notebook-xps-15-9530-black-gallery-4.psd?fmt=pjpg&pscan=auto&scl=1&wid=4000&hei=3000&qlt=100,1&resMode=sharp2&size=4000,3000&chrss=full"],
     desc: "The Dell XPS 15 is a powerhouse for creators and power users. The 15.6\" OLED display with 3.5K resolution makes every image breathtaking, while the NVIDIA RTX 4060 handles video editing and gaming with ease.",
