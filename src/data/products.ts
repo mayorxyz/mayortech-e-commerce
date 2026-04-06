@@ -41,7 +41,7 @@ export const products: Product[] = [
     specs: "Display:15.6\" OLED 3.5K|CPU:Intel Core i7-13700H|GPU:NVIDIA RTX 4060 8GB|RAM:16GB DDR5|Storage:512GB NVMe SSD|OS:Windows 11 Home|Weight:1.86 kg",
   },
   {
-    id: "6", category: "earphones", name: "AirPods Pro 2", price: "₦285,000", priceNum: 285000, condition: "new", inStock: true,
+    id: "6", category: "earphones", name: "AirPods Pro 2", price: "₦285,000", priceNum: 285000, condition: "Brand New", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MQD83?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1660803972361",
     images: ["https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MQD83?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1660803972361"],
     desc: "AirPods Pro 2nd generation deliver the most immersive sound Apple has ever made, with up to 2x more Active Noise Cancellation than the previous generation. The USB-C MagSafe case extends total battery life to 30 hours.",
