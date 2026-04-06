@@ -71,10 +71,6 @@ export default function AdminPage() {
 <<<<<<< HEAD
           image_url: imageUrlsToUse[0] || "", video_url: videoUrl || undefined, in_stock: inStock, sold,
           condition, images: imageUrlsToUse, specifications: specsObj, brand, tagline,
-=======
-          image_url: imageUrls[0] || "", video_url: videoUrl || undefined, in_stock: inStock,
-          sold: false, condition, images: imageUrls, specifications: specsObj, brand, tagline,
->>>>>>> ea94d85869ecab6cbaf265bbd0ae2c7018630639
         });
         setMsg("Product added!");
       }
