@@ -68,13 +68,8 @@ export default function AdminPage() {
       } else {
         await addProduct({
           name, price: priceNum, category, description,
-<<<<<<< HEAD
           image_url: imageUrlsToUse[0] || "", video_url: videoUrl || undefined, in_stock: inStock, sold,
           condition, images: imageUrlsToUse, specifications: specsObj, brand, tagline,
-=======
-          image_url: imageUrls[0] || "", video_url: videoUrl || undefined, in_stock: inStock,
-          sold: false, condition, images: imageUrls, specifications: specsObj, brand, tagline,
->>>>>>> ea94d85869ecab6cbaf265bbd0ae2c7018630639
         });
         setMsg("Product added!");
       }
@@ -422,7 +417,6 @@ export default function AdminPage() {
                       Edit
                     </button>
                     <button
-<<<<<<< HEAD
                       onClick={() => handleToggleSold(p)}
                       className={`flex-1 py-2 rounded-lg text-xs font-medium cursor-pointer hover:brightness-90 ${
                         p.sold
@@ -434,9 +428,6 @@ export default function AdminPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
-=======
-                      onClick={() => deleteProduct(p.id)}
->>>>>>> ea94d85869ecab6cbaf265bbd0ae2c7018630639
                       className="flex-1 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-medium cursor-pointer hover:brightness-90"
                     >
                       Delete
