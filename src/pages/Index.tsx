@@ -186,7 +186,7 @@ export default function Index() {
           </div>
         </div>
       ) : (
-        <MasonryGrid items={filtered} savedItems={savedItems} toggleSave={toggleSave} setOrderProduct={setOrderProduct} />
+        <MasonryGrid items={filtered} cartItems={cartItems} addToCart={addToCart} setOrderProduct={setOrderProduct} />
       )}
 
       <DeliveryExpander />

@@ -5,9 +5,10 @@ interface Props {
   product: Product | null;
   onClose: () => void;
   onSubmit: (data: { name: string; phone: string; email: string; address: string }) => Promise<boolean>;
+  isCartOrder?: boolean;
 }
 
-export default function OrderModal({ product, onClose, onSubmit }: Props) {
+export default function OrderModal({ product, onClose, onSubmit, isCartOrder }: Props) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ export default function OrderModal({ product, onClose, onSubmit }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  if (!product) return null;
+  if (!product && !isCartOrder) return null;
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -41,7 +42,10 @@ export default function OrderModal({ product, onClose, onSubmit }: Props) {
             <div className="success-icon">✓</div>
             <div className="success-title">Order Confirmed!</div>
             <div className="success-msg">
-              Your order for <strong>{product.name}</strong> has been received. We'll contact you shortly via WhatsApp or call to arrange delivery.
+              {isCartOrder 
+                ? "Your cart order has been received. We'll contact you shortly via WhatsApp or call to arrange delivery."
+                : <>Your order for <strong>{product?.name}</strong> has been received. We'll contact you shortly via WhatsApp or call to arrange delivery.</>
+              }
             </div>
             <button className="bconf" onClick={onClose}>Done</button>
           </div>
@@ -57,7 +61,11 @@ export default function OrderModal({ product, onClose, onSubmit }: Props) {
           <div className="mtitle">Place Order</div>
           <button className="mclose" onClick={onClose}>✕</button>
         </div>
-        <div className="mdev">Ordering: <span>{product.name}</span></div>
+        {isCartOrder ? (
+          <div className="mdev">Ordering: <span>All cart items</span></div>
+        ) : (
+          <div className="mdev">Ordering: <span>{product?.name}</span></div>
+        )}
         <div className="field">
           <label>Full Name</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Chidi Okonkwo" />

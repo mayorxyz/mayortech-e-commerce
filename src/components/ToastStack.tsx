@@ -8,7 +8,7 @@ export default function ToastStack({ toasts }: Props) {
   return (
     <div className="toast-stack">
       {toasts.map((t) => {
-        const typeClass = t.type === "bookmark" ? "bm" : t.type === "order" ? "ok" : "wn";
+        const typeClass = t.type === "bookmark" ? "bm" : t.type === "order" || t.type === "cart" ? "ok" : t.type === "remove" ? "wn" : "ok";
         return (
           <div
             key={t.id}

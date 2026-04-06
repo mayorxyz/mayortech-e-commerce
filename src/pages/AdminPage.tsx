@@ -15,31 +15,33 @@ export default function AdminPage() {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [inStock, setInStock] = useState(true);
+  const [sold, setSold] = useState(false);
   const [condition, setCondition] = useState("Brand New");
   const [brand, setBrand] = useState("");
   const [tagline, setTagline] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [specifications, setSpecifications] = useState<Array<{key: string, value: string}>>([{key: "", value: ""}]);
   const [uploading, setUploading] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const resetForm = () => {
     setName(""); setCategory("phones"); setPrice(""); setDescription("");
-    setInStock(true); setCondition("Brand New"); setBrand(""); setTagline("");
-    setImageFiles([]); setVideoFile(null); setSpecifications([{key: "", value: ""}]); setEditId(null);
+    setInStock(true); setSold(false); setCondition("Brand New"); setBrand(""); setTagline("");
+    setImageFiles([]); setImageUrls([]); setVideoFile(null); setSpecifications([{key: "", value: ""}]); setEditId(null);
   };
 
   const handleSubmit = async () => {
     if (!name || !price) { setMsg("Name and price are required"); return; }
     setUploading(true); setMsg("");
     try {
-      // Upload multiple images
-      const imageUrls: string[] = [];
+      const imageUrlsToUse = [...imageUrls];
       for (const file of imageFiles) {
         const url = await uploadFile(file, "images");
-        imageUrls.push(url);
+        imageUrlsToUse.push(url);
       }
 
       let videoUrl = "";
@@ -47,7 +49,6 @@ export default function AdminPage() {
 
       const priceNum = parseInt(price.replace(/\D/g, "")) || 0;
 
-      // Convert specifications array to object
       const specsObj: Record<string, string> = {};
       specifications.forEach(spec => {
         if (spec.key.trim() && spec.value.trim()) {
@@ -57,18 +58,18 @@ export default function AdminPage() {
 
       if (editId) {
         const updates: any = {
-          name, price: priceNum, category, description, in_stock: inStock,
+          name, price: priceNum, category, description, in_stock: inStock, sold,
           condition, brand, tagline, specifications: specsObj
         };
-        if (imageUrls.length > 0) updates.images = imageUrls;
+        if (imageUrlsToUse.length > 0) updates.images = imageUrlsToUse;
         if (videoUrl) updates.video_url = videoUrl;
         await updateProduct(editId, updates);
         setMsg("Product updated!");
       } else {
         await addProduct({
           name, price: priceNum, category, description,
-          image_url: imageUrls[0] || "", video_url: videoUrl || undefined, in_stock: inStock,
-          condition, images: imageUrls, specifications: specsObj, brand, tagline,
+          image_url: imageUrlsToUse[0] || "", video_url: videoUrl || undefined, in_stock: inStock, sold,
+          condition, images: imageUrlsToUse, specifications: specsObj, brand, tagline,
         });
         setMsg("Product added!");
       }
@@ -86,15 +87,53 @@ export default function AdminPage() {
     setCategory(p.category);
     setDescription(p.desc);
     setInStock(p.inStock);
+    setSold(p.sold ?? false);
     setCondition(p.condition || "Brand New");
     setBrand(p.brand || "");
     setTagline(p.tagline || "");
     setImageFiles([]);
+    setImageUrls(p.images || []);
     setVideoFile(null);
-    // Convert specifications object to array
     const specsArray = Object.entries(p.specifications || {}).map(([key, value]) => ({key, value: value as string}));
     setSpecifications(specsArray.length > 0 ? specsArray : [{key: "", value: ""}]);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = (id: string) => {
+    setDeleteConfirm(id);
+  };
+
+  const confirmDelete = async (id: string) => {
+    try {
+      await deleteProduct(id);
+      setMsg("Product deleted!");
+      setDeleteConfirm(null);
+    } catch (e: any) {
+      setMsg("Error: " + e.message);
+    }
+  };
+
+  const handleToggleSold = async (p: any) => {
+    try {
+      await updateProduct(p.id, { sold: !p.sold });
+      setMsg(p.sold ? "Product marked as available!" : "Product marked as sold!");
+    } catch (e: any) {
+      setMsg("Error: " + e.message);
+    }
+  };
+
+  const removeImageUrl = (index: number) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index));
+  };
+
+  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const totalImages = imageUrls.length + imageFiles.length + files.length;
+    if (totalImages > 5) {
+      setMsg(`Maximum 5 images allowed. Currently: ${imageUrls.length + imageFiles.length}`);
+      return;
+    }
+    setImageFiles(files);
   };
 
   const addSpecification = () => {
@@ -109,15 +148,6 @@ export default function AdminPage() {
     const newSpecs = [...specifications];
     newSpecs[index][field] = value;
     setSpecifications(newSpecs);
-  };
-
-  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 5) {
-      setMsg("Maximum 5 images allowed");
-      return;
-    }
-    setImageFiles(files);
   };
 
   const inputClass =
@@ -224,18 +254,93 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <label className="flex items-center gap-3 text-sm text-foreground cursor-pointer">
-            <input
-              type="checkbox"
-              checked={inStock}
-              onChange={(e) => setInStock(e.target.checked)}
-              className="w-4 h-4 accent-primary"
-            />
-            In Stock
-          </label>
+          <div className="flex gap-3">
+            <label className="flex items-center gap-3 text-sm text-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={inStock}
+                onChange={(e) => setInStock(e.target.checked)}
+                className="w-4 h-4 accent-primary"
+              />
+              In Stock
+            </label>
+            <label className="flex items-center gap-3 text-sm text-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sold}
+                onChange={(e) => setSold(e.target.checked)}
+                className="w-4 h-4 accent-primary"
+              />
+              Sold
+            </label>
+          </div>
+
+          {/* Current Images */}
+          {imageUrls.length > 0 && (
+            <div>
+              <label className="text-xs text-muted block mb-2">Current Images</label>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {imageUrls.map((url, i) => (
+                  <div key={i} style={{ position: "relative", width: 60, height: 60, borderRadius: 8, overflow: "hidden", border: "1px solid var(--bv)" }}>
+                    <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      onClick={() => removeImageUrl(i)}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        background: "rgba(0,0,0,0.7)",
+                        color: "white",
+                        border: "none",
+                        width: 20,
+                        height: 20,
+                        borderRadius: "0 8px 0 8px",
+                        cursor: "pointer",
+                        fontSize: 12,
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* New Images Preview */}
+          {imageFiles.length > 0 && (
+            <div>
+              <label className="text-xs text-muted block mb-2">New Images Preview ({imageFiles.length})</label>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {imageFiles.map((file, i) => (
+                  <div key={i} style={{ position: "relative", width: 60, height: 60, borderRadius: 8, overflow: "hidden", border: "1px solid var(--bv)", background: "var(--surface2)" }}>
+                    <img src={URL.createObjectURL(file)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      onClick={() => setImageFiles(imageFiles.filter((_, idx) => idx !== i))}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        background: "rgba(0,0,0,0.7)",
+                        color: "white",
+                        border: "none",
+                        width: 20,
+                        height: 20,
+                        borderRadius: "0 8px 0 8px",
+                        cursor: "pointer",
+                        fontSize: 12,
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div>
-            <label className="text-xs text-muted block mb-1">Product Images (up to 5)</label>
+            <label className="text-xs text-muted block mb-1">Product Images (up to 5 total)</label>
             <input
               type="file"
               accept="image/*"
@@ -243,8 +348,8 @@ export default function AdminPage() {
               onChange={handleImageFilesChange}
               className="text-sm text-muted file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground file:cursor-pointer"
             />
-            {imageFiles.length > 0 && (
-              <p className="text-xs text-muted mt-1">{imageFiles.length} image(s) selected</p>
+            {(imageUrls.length + imageFiles.length) > 0 && (
+              <p className="text-xs text-muted mt-1">{imageUrls.length + imageFiles.length} image(s) selected</p>
             )}
           </div>
 
@@ -302,14 +407,24 @@ export default function AdminPage() {
                   <div className="font-heading font-semibold text-sm">{p.name}</div>
                   <div className="text-muted text-xs mt-1">{p.category} · {p.price}</div>
                   <div className="text-xs mt-1" style={{ color: p.inStock ? "#64dc82" : "var(--muted)" }}>
-                    {p.inStock ? "In Stock" : "Out of Stock"}
+                    {p.inStock ? "In Stock" : "Out of Stock"}{p.sold && " (Sold)"}
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-3 flex-wrap">
                     <button
                       onClick={() => handleEdit(p)}
                       className="flex-1 py-2 rounded-lg bg-surface border border-border text-xs text-foreground font-medium cursor-pointer hover:brightness-90"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => handleToggleSold(p)}
+                      className={`flex-1 py-2 rounded-lg text-xs font-medium cursor-pointer hover:brightness-90 ${
+                        p.sold
+                          ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                          : "bg-surface border border-border text-foreground"
+                      }`}
+                    >
+                      {p.sold ? "Unsold" : "Mark Sold"}
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
@@ -324,6 +439,71 @@ export default function AdminPage() {
           </div>
         )}
       </section>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.65)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 700,
+          }}
+          onClick={() => setDeleteConfirm(null)}
+        >
+          <div
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--bv)",
+              borderRadius: 12,
+              padding: 20,
+              maxWidth: 320,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Delete Product?</h3>
+            <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16, lineHeight: 1.5 }}>
+              Are you sure you want to delete this product? This cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  background: "var(--surface2)",
+                  border: "1px solid var(--bv)",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => confirmDelete(deleteConfirm)}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  background: "#e24b4a",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
