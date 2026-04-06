@@ -68,7 +68,7 @@ export default function AdminPage() {
         await addProduct({
           name, price: priceNum, category, description,
           image_url: imageUrls[0] || "", video_url: videoUrl || undefined, in_stock: inStock,
-          condition, images: imageUrls, specifications: specsObj, brand, tagline,
+          sold: false, condition, images: imageUrls, specifications: specsObj, brand, tagline,
         });
         setMsg("Product added!");
       }
@@ -312,7 +312,7 @@ export default function AdminPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => deleteProduct(p.id)}
                       className="flex-1 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-medium cursor-pointer hover:brightness-90"
                     >
                       Delete
