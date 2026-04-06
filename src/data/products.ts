@@ -27,7 +27,7 @@ export const products: Product[] = [
     specs: "Display:6.1\" Super Retina XDR|Chip:A15 Bionic|Camera:12MP + 12MP Dual|Battery:3227mAh|Storage:128GB|OS:iOS 16 (upgradeable)|Condition:UK Used — Grade A",
   },
   {
-    id: "4", category: "laptops", name: "MacBook Air M3", price: "₦1,620,000", priceNum: 1620000, condition: "new", inStock: true,
+    id: "4", category: "laptops", name: "MacBook Air M3", price: "₦1,620,000", priceNum: 1620000, condition: "Brand New", inStock: true, sold: false, brand: "", tagline: "", specifications: {},
     image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/macbook-air-midnight-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1653084303665",
     images: ["https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/macbook-air-midnight-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1653084303665"],
     desc: "The MacBook Air M3 is the perfect everyday laptop — incredibly thin, completely fanless, and absolutely silent. The M3 chip delivers performance that rivals many pro machines, while the gorgeous 13.6\" Liquid Retina display and up to 18 hours of battery life make it ideal for students and professionals alike.",
