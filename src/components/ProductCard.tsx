@@ -18,7 +18,7 @@ function condBadge(c: string) {
   };
   return (
     <span
-      className={`cbadge absolute top-2 left-2 text-white text-xs px-2 py-1 rounded ${
+      className={`absolute top-2 right-2 text-white text-[10px] px-2 py-0.5 rounded-full z-10 ${
         colors[c] || "bg-gray-500"
       }`}
     >
