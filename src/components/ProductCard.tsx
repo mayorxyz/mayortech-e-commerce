@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Product } from "@/types/product";
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 
 interface Props {
   product: Product;
@@ -10,37 +10,26 @@ interface Props {
   onOrder: () => void;
 }
 
-function condBadge(c: string) {
-  const colors: Record<string, string> = {
-    "Brand New": "bg-green-500",
-    "UK Used": "bg-amber-500",
-    "Foreign Used": "bg-blue-500",
-  };
-  return (
-    <span
-      className={`absolute top-2 right-2 text-white text-[10px] px-2 py-0.5 rounded-full z-10 ${
-        colors[c] || "bg-gray-500"
-      }`}
-    >
-      {c}
-    </span>
-  );
+function condBadgeClass(c: string) {
+  if (c === "Brand New") return "cbadge new";
+  if (c === "UK Used") return "cbadge uk";
+  if (c === "Foreign Used") return "cbadge ng";
+  return "cbadge";
 }
 
 export default function ProductCard({ product, inCart, onAddToCart, onOrder }: Props) {
   const navigate = useNavigate();
   const isSold = product.sold || !product.inStock;
+  const [specsOpen, setSpecsOpen] = useState(false);
+
+  const hasSpecs = product.specifications && Object.keys(product.specifications).length > 0;
 
   return (
     <div className="card">
       <div className="card-img" onClick={() => navigate(`/product/${product.id}`)}>
-        <span className="absolute top-2 left-2 bg-gray-700/80 text-white text-[10px] px-2 py-0.5 rounded-full z-10">{product.category}</span>
-        {condBadge(product.condition)}
-        {product.sold && (
-          <span className="absolute bottom-2 right-2 bg-destructive text-white text-[10px] px-2 py-0.5 rounded-full font-bold z-10">
-            Sold
-          </span>
-        )}
+        <span className="ctag">{product.category}</span>
+        <span className={condBadgeClass(product.condition)}>{product.condition}</span>
+        {product.sold && <span className="sold-badge">Sold</span>}
         <img
           src={product.image}
           alt={product.name}
@@ -52,37 +41,48 @@ export default function ProductCard({ product, inCart, onAddToCart, onOrder }: P
       </div>
 
       <div className="card-body">
-        {product.brand && <div className="text-xs text-muted mb-0.5">{product.brand}</div>}
+        {product.brand && <div className="text-[10px] text-[var(--muted)] mb-0.5">{product.brand}</div>}
         <div className="cname" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</div>
-        {product.tagline && <div className="text-xs text-muted-foreground/70 mb-1 line-clamp-1">{product.tagline}</div>}
-        <div className="flex items-end justify-between">
-          <div className="cprice">{product.price}</div>
-          {!isSold && (
-            <div className="flex flex-col gap-1">
-              <button
-                onClick={(e) => { e.stopPropagation(); onOrder(); }}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 text-xs rounded-md font-medium transition-colors"
-                aria-label="Order now"
-              >
-                Order Now
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
-                className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
-                  inCart
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
-                }`}
-                aria-label="Add to cart"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
+        {product.tagline && <div className="text-[10px] text-[var(--muted)] mt-0.5 line-clamp-1">{product.tagline}</div>}
+        <div className="cprice">{product.price}</div>
+      </div>
+
+      {hasSpecs && (
+        <>
+          <div className={`dtog${specsOpen ? " open" : ""}`} onClick={() => setSpecsOpen(!specsOpen)}>
+            <span>Quick specs</span>
+            <ChevronDown className="w-3.5 h-3.5" />
+          </div>
+          <div className={`dpanel${specsOpen ? " open" : ""}`}>
+            <div className="dpanel-in">
+              {Object.entries(product.specifications!).map(([k, v]) => (
+                <div key={k}><strong>{k}:</strong> {v}</div>
+              ))}
             </div>
-          )}
-          {isSold && (
-            <span className="text-xs text-destructive font-semibold">Sold Out</span>
-          )}
-        </div>
+          </div>
+        </>
+      )}
+
+      <div className="cact">
+        {isSold ? (
+          <button className="bsold" disabled>Sold Out</button>
+        ) : (
+          <>
+            <button
+              className={`bsave${inCart ? " saved" : ""}`}
+              onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
+              aria-label="Add to cart"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            <button
+              className="border-btn"
+              onClick={(e) => { e.stopPropagation(); onOrder(); }}
+            >
+              Order Now
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
