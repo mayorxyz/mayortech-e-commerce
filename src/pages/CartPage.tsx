@@ -6,6 +6,7 @@ import { sendOrderEmail } from "@/lib/emailjs";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
+import OrderTracker from "@/components/OrderTracker";
 import { Product } from "@/types/product";
 
 const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
@@ -209,6 +210,8 @@ export default function CartPage() {
           </>
         )}
       </div>
+
+      <OrderTracker />
 
       <WhatsAppFloat />
 
