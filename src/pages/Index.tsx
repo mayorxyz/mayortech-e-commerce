@@ -7,6 +7,7 @@ import ProductCard from "@/components/ProductCard";
 import OrderModal from "@/components/OrderModal";
 import ToastStack from "@/components/ToastStack";
 import DeliveryExpander from "@/components/DeliveryExpander";
+import OrderProcessExpander from "@/components/OrderProcessExpander";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AboutSheet from "@/components/AboutSheet";
@@ -189,6 +190,7 @@ export default function Index() {
         <MasonryGrid items={filtered} cartItems={cartItems} addToCart={addToCart} setOrderProduct={setOrderProduct} />
       )}
 
+      <OrderProcessExpander />
       <DeliveryExpander />
       <Footer />
       <WhatsAppFloat />
