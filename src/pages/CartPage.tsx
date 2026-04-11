@@ -88,9 +88,6 @@ export default function CartPage() {
         <div className={`tab active`}>
           Cart <span>({totalItems})</span>
         </div>
-        <div className={`tab`} style={{ cursor: "pointer" }} onClick={() => navigate("/") }>
-          Orders <span>({orderHistory.length})</span>
-        </div>
       </div>
 
       <div style={{ padding: 20 }}>

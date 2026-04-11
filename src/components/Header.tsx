@@ -27,6 +27,44 @@ export default function Header({ onAbout, onContact }: Props) {
     <div className="hdr">
       <div className="logo" onClick={() => navigate("/")}>Mayor<span>Tech</span></div>
       <div className="hdr-r">
+        <button
+          className="cart-icon-btn"
+          onClick={() => navigate("/cart")}
+          aria-label="Cart"
+          style={{
+            position: "relative",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--fg)",
+            padding: 6,
+            marginRight: 4,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+          </svg>
+          {cartCount > 0 && (
+            <span style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              background: "var(--accent)",
+              color: "#0e0e0f",
+              borderRadius: "50%",
+              width: 16,
+              height: 16,
+              fontSize: 10,
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              lineHeight: 1,
+            }}>{cartCount}</span>
+          )}
+        </button>
         <div className="menu-wrap" ref={menuRef}>
           <button className="dots" onClick={() => setMenuOpen((o) => !o)}>⋮</button>
           <div className={`dd${menuOpen ? " open" : ""}`}>
