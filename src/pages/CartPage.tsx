@@ -16,6 +16,7 @@ export default function CartPage() {
   const { placeOrder } = useOrders();
   const navigate = useNavigate();
   const [orderOpen, setOrderOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
 
   const cartList = Object.values(cartItems);
   const totalItems = cartList.reduce((sum, item) => sum + item.quantity, 0);
