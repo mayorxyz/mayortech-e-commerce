@@ -16,7 +16,14 @@ export default function OrderTracker({ customerPhone }: OrderTrackerProps) {
   }
 
   if (orders.length === 0) {
-    return null;
+    return (
+      <div style={{ padding: 40, textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
+        <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.6 }}>
+          No orders yet.<br />Once you place an order, tracking will appear here.
+        </p>
+      </div>
+    );
   }
 
   return (
