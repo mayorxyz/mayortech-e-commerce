@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { useOrders } from "@/hooks/useOrders";
 import { sendOrderEmail } from "@/lib/emailjs";
@@ -15,8 +15,15 @@ export default function CartPage() {
   const { cartItems, removeFromCart, updateCartQuantity, orderHistory, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
   const navigate = useNavigate();
+  const location = useLocation();
   const [orderOpen, setOrderOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
+
+  useEffect(() => {
+    if ((location.state as any)?.tab === "orders") {
+      setActiveTab("orders");
+    }
+  }, [location.state]);
 
   const cartList = Object.values(cartItems);
   const totalItems = cartList.reduce((sum, item) => sum + item.quantity, 0);
@@ -45,13 +52,13 @@ export default function CartPage() {
       customer_address: data.address,
       items,
       total_amount: totalPrice,
-      status: "pending",
     });
 
     if (!result.success) {
       showToast(result.error || "Failed to place order", "order", "!");
       return false;
     }
+    setActiveTab("orders");
 
     cartList.forEach((item) => {
       addOrderToHistory(
@@ -226,6 +233,10 @@ export default function CartPage() {
           product={null as any}
           onClose={() => setOrderOpen(false)}
           onSubmit={handleOrderAllItems}
+          onViewOrder={() => {
+            setActiveTab("orders");
+            setOrderOpen(false);
+          }}
           isCartOrder={true}
         />
       )}

@@ -132,15 +132,14 @@ export default function ProductDetailPage() {
       customer_name: data.name,
       customer_phone: data.phone,
       customer_address: data.address,
-      items: [{ productName: product.name, price: product.price, quantity: 1 }],
+      items: [{ productName: product.name, price: product.price, quantity: 1, image: product.image }],
       total_amount: product.priceNum,
-      status: "pending",
     });
     if (!result.success) {
       showToast(result.error || "Failed to place order", "unbookmark", "!");
       return false;
     }
-    addOrderToHistory({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email, status: "pending", timestamp: Date.now() }, product);
+    addOrderToHistory({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email, status: "confirmed", timestamp: Date.now() }, product);
     sendOrderEmail({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email });
     showToast(`Order placed for <strong>${product.name}</strong> — we'll be in touch!`, "order", "✓");
     return true;
@@ -289,10 +288,10 @@ export default function ProductDetailPage() {
           <button className="bs3 w-full" disabled>Sold Out</button>
         ) : (
           <>
-            <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
             <button className={`bs2${isInCart ? " saved" : ""}`} onClick={handleAddToCart}>
-              {isInCart ? "✓ In Cart" : "Add to Cart"}
+              {isInCart ? "✓" : "+"}
             </button>
+            <button className="bo2" onClick={() => setOrderOpen(true)}>Order Now →</button>
           </>
         )}
       </div>

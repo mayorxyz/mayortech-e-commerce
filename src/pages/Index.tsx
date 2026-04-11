@@ -16,6 +16,7 @@ import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import { useOrders } from "@/hooks/useOrders";
 import { useStore } from "@/contexts/StoreContext";
 import { sendOrderEmail } from "@/lib/emailjs";
+import { useNavigate } from "react-router-dom";
 import { Product } from "@/types/product";
 
 function useColumns() {
@@ -64,6 +65,7 @@ export default function Index() {
   const { products } = useSupabaseProducts();
   const { placeOrder } = useOrders();
   const { cartItems, toasts, showToast, addToCart, addOrderToHistory } = useStore();
+  const navigate = useNavigate();
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,9 +113,8 @@ export default function Index() {
         customer_name: data.name,
         customer_phone: data.phone,
         customer_address: data.address,
-        items: [{ productName: orderProduct.name, price: orderProduct.price, quantity: 1 }],
+        items: [{ productName: orderProduct.name, price: orderProduct.price, quantity: 1, image: orderProduct.image }],
         total_amount: orderProduct.priceNum,
-        status: "pending",
       });
 
       if (!result.success) {
@@ -126,7 +127,7 @@ export default function Index() {
         customerName: data.name,
         phone: data.phone,
         email: data.email,
-        status: "pending",
+        status: "confirmed",
         timestamp: Date.now(),
       }, orderProduct);
 
@@ -202,6 +203,7 @@ export default function Index() {
           product={orderProduct}
           onClose={() => setOrderProduct(null)}
           onSubmit={handleOrderSubmit}
+          onViewOrder={() => navigate("/cart", { state: { tab: "orders" } })}
         />
       )}
     </div>

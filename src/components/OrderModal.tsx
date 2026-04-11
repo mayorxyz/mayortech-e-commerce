@@ -5,10 +5,11 @@ interface Props {
   product: Product | null;
   onClose: () => void;
   onSubmit: (data: { name: string; phone: string; email: string; address: string }) => Promise<boolean>;
+  onViewOrder?: () => void;
   isCartOrder?: boolean;
 }
 
-export default function OrderModal({ product, onClose, onSubmit, isCartOrder }: Props) {
+export default function OrderModal({ product, onClose, onSubmit, onViewOrder, isCartOrder }: Props) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -34,20 +35,32 @@ export default function OrderModal({ product, onClose, onSubmit, isCartOrder }: 
     if (ok) setSuccess(true);
   };
 
+  const handleViewOrder = () => {
+    if (onViewOrder) {
+      onViewOrder();
+    } else {
+      onClose();
+    }
+  };
+
   if (success) {
     return (
       <div className="overlay show" onClick={handleOverlayClick}>
         <div className="modal">
           <div className="order-success">
             <div className="success-icon">✓</div>
-            <div className="success-title">Order Confirmed!</div>
+            <div className="success-title">Order Placed Successfully</div>
             <div className="success-msg">
-              {isCartOrder 
+              {isCartOrder
                 ? "Your cart order has been received. We'll contact you shortly via WhatsApp or call to arrange delivery."
                 : <>Your order for <strong>{product?.name}</strong> has been received. We'll contact you shortly via WhatsApp or call to arrange delivery.</>
               }
             </div>
-            <button className="bconf" onClick={onClose}>Done</button>
+            {onViewOrder ? (
+              <button className="bconf" onClick={handleViewOrder}>View Order</button>
+            ) : (
+              <button className="bconf" onClick={onClose}>Done</button>
+            )}
           </div>
         </div>
       </div>
