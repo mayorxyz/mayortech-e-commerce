@@ -19,14 +19,65 @@ export interface OrderInput {
   status?: string;
 }
 
+export interface LocalOrder {
+  id: string;
+  orderId: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  items: OrderItem[];
+  totalAmount: number;
+  orderStatus: string;
+  createdAt: number;
+}
+
+const ORDERS_STORAGE_KEY = "user_orders";
+
 export function useOrders() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const saveToLocalStorage = (order: LocalOrder) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
+      const updated = [order, ...existing.filter((o: LocalOrder) => o.id !== order.id)];
+      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
+    } catch (err) {
+      console.warn("Failed to save order to localStorage:", err);
+    }
+  };
+
+  const getFromLocalStorage = (): LocalOrder[] => {
+    try {
+      return JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
+    } catch (err) {
+      console.warn("Failed to load orders from localStorage:", err);
+      return [];
+    }
+  };
+
   const placeOrder = async (
     order: OrderInput
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<{ success: boolean; error?: string; orderId?: string }> => {
     setIsSubmitting(true);
+
+    // Create optimistic local order
+    const optimisticOrder: LocalOrder = {
+      id: `temp_${Date.now()}`,
+      orderId: `ORD${Date.now()}`,
+      customerName: order.customer_name,
+      customerPhone: order.customer_phone,
+      customerAddress: order.customer_address,
+      items: order.items,
+      totalAmount: order.total_amount,
+      orderStatus: "confirmed",
+      createdAt: Date.now(),
+    };
+
+    // Save optimistically to localStorage immediately
+    saveToLocalStorage(optimisticOrder);
+
     try {
+      // Firestore save (non-blocking)
       const firestoreData = {
         customerName: order.customer_name,
         customerPhone: order.customer_phone,
@@ -37,8 +88,14 @@ export function useOrders() {
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "order_tracking"), firestoreData);
+      const docRef = await addDoc(collection(db, "order_tracking"), firestoreData);
+      const realOrderId = docRef.id;
 
+      // Update localStorage with real ID
+      const updatedOrder = { ...optimisticOrder, id: realOrderId, orderId: realOrderId };
+      saveToLocalStorage(updatedOrder);
+
+      // Supabase save (non-blocking)
       const { error } = await supabase.from("orders").insert({
         customer_name: order.customer_name,
         customer_phone: order.customer_phone,
@@ -47,18 +104,25 @@ export function useOrders() {
         total_amount: order.total_amount,
         status: "confirmed",
       });
+
       if (error) {
         console.warn("Supabase insert warning:", error.message);
       }
 
-      return { success: true };
+      return { success: true, orderId: realOrderId };
     } catch (err: any) {
       console.error("Order error:", err);
+      // Remove failed order from localStorage
+      try {
+        const existing = getFromLocalStorage();
+        const filtered = existing.filter(o => o.id !== optimisticOrder.id);
+        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(filtered));
+      } catch {}
       return { success: false, error: err.message || "Something went wrong" };
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return { placeOrder, isSubmitting };
+  return { placeOrder, isSubmitting, getFromLocalStorage, saveToLocalStorage };
 }

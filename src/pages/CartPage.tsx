@@ -18,12 +18,23 @@ export default function CartPage() {
   const location = useLocation();
   const [orderOpen, setOrderOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
+  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
 
   useEffect(() => {
     if ((location.state as any)?.tab === "orders") {
       setActiveTab("orders");
     }
   }, [location.state]);
+
+  const scrollToOrders = () => {
+    setActiveTab("orders");
+    setTimeout(() => {
+      const ordersSection = document.querySelector('[data-orders-section]');
+      if (ordersSection) {
+        ordersSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   const cartList = Object.values(cartItems);
   const totalItems = cartList.reduce((sum, item) => sum + item.quantity, 0);
@@ -44,6 +55,7 @@ export default function CartPage() {
       productName: item.product.name,
       price: item.product.price,
       quantity: item.quantity,
+      image: item.product.image,
     }));
 
     const result = await placeOrder({
@@ -59,6 +71,7 @@ export default function CartPage() {
       return false;
     }
     setActiveTab("orders");
+    setShowOrderSuccess(true);
 
     cartList.forEach((item) => {
       addOrderToHistory(
@@ -226,6 +239,54 @@ export default function CartPage() {
         <OrderTracker />
       )}
 
+      {showOrderSuccess && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 20,
+            left: 20,
+            right: 20,
+            background: "var(--surface2)",
+            border: "1px solid var(--bv)",
+            borderRadius: 12,
+            padding: 16,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <div style={{ fontSize: 20, color: "var(--accent)" }}>✓</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>
+              Order Placed Successfully
+            </div>
+            <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+              Check your order status below
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setShowOrderSuccess(false);
+              scrollToOrders();
+            }}
+            style={{
+              padding: "8px 16px",
+              background: "var(--accent)",
+              color: "#0e0e0f",
+              border: "none",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            View Order →
+          </button>
+        </div>
+      )}
+
       <WhatsAppFloat />
 
       {orderOpen && (
@@ -236,6 +297,7 @@ export default function CartPage() {
           onViewOrder={() => {
             setActiveTab("orders");
             setOrderOpen(false);
+            setTimeout(() => scrollToOrders(), 100);
           }}
           isCartOrder={true}
         />

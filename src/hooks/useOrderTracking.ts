@@ -44,6 +44,8 @@ export interface TrackedOrder {
   createdAt: number;
 }
 
+const ORDERS_STORAGE_KEY = "user_orders";
+
 export function useOrderTracking(customerPhone?: string) {
   const [orders, setOrders] = useState<TrackedOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +60,27 @@ export function useOrderTracking(customerPhone?: string) {
     }
   }, []);
 
+  // Load from localStorage first
+  useEffect(() => {
+    const loadFromLocalStorage = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
+        const filtered = customerPhone
+          ? stored.filter((o: TrackedOrder) => o.customerPhone === customerPhone)
+          : stored;
+        filtered.sort((a: TrackedOrder, b: TrackedOrder) => (b.createdAt || 0) - (a.createdAt || 0));
+        setOrders(filtered);
+        setLoading(false);
+      } catch (err) {
+        console.warn("Failed to load from localStorage:", err);
+        setLoading(false);
+      }
+    };
+
+    loadFromLocalStorage();
+  }, [customerPhone]);
+
+  // Then sync with Firebase
   useEffect(() => {
     const col = collection(db, "order_tracking");
     const q = customerPhone
@@ -67,7 +90,7 @@ export function useOrderTracking(customerPhone?: string) {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const results: TrackedOrder[] = snap.docs.map((d) => {
+        const firebaseOrders: TrackedOrder[] = snap.docs.map((d) => {
           const data = d.data() as any;
           return {
             id: d.id,
@@ -81,13 +104,29 @@ export function useOrderTracking(customerPhone?: string) {
             createdAt: data.createdAt?.toMillis ? data.createdAt.toMillis() : data.createdAt || Date.now(),
           };
         });
-        results.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        setOrders(results);
-        setLoading(false);
+
+        // Merge with localStorage data, preferring Firebase data
+        setOrders((currentOrders) => {
+          const merged = [...firebaseOrders];
+          currentOrders.forEach((localOrder) => {
+            if (!firebaseOrders.find((fb) => fb.id === localOrder.id)) {
+              merged.push(localOrder);
+            }
+          });
+          merged.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+          // Update localStorage with merged data
+          try {
+            localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(merged));
+          } catch (err) {
+            console.warn("Failed to update localStorage:", err);
+          }
+
+          return merged;
+        });
       },
       (err) => {
         console.error("Order tracking listener error:", err);
-        setLoading(false);
       }
     );
 

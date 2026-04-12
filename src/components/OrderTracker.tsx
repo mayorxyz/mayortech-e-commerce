@@ -29,7 +29,7 @@ export default function OrderTracker({ customerPhone }: OrderTrackerProps) {
   }
 
   return (
-    <div style={{ padding: "0 20px 20px" }}>
+    <div style={{ padding: "0 20px 20px" }} data-orders-section>
       <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
         📦 Order Tracking
       </h3>

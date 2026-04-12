@@ -24,6 +24,7 @@ export default function ProductDetailPage() {
   const [activeThumb, setActiveThumb] = useState(0);
   const [bumpCart, setBumpCart] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
+  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
 
   const fetchProduct = useCallback(async (productId: string) => {
     setLoading(true);
@@ -142,6 +143,7 @@ export default function ProductDetailPage() {
     addOrderToHistory({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email, status: "confirmed", timestamp: Date.now() }, product);
     sendOrderEmail({ productName: product.name, customerName: data.name, phone: data.phone, email: data.email });
     showToast(`Order placed for <strong>${product.name}</strong> — we'll be in touch!`, "order", "✓");
+    setShowOrderSuccess(true);
     return true;
   };
 
@@ -298,8 +300,58 @@ export default function ProductDetailPage() {
 
       <WhatsAppFloat className="detail-wa" />
 
+      {showOrderSuccess && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 20,
+            left: 20,
+            right: 20,
+            background: "var(--surface2)",
+            border: "1px solid var(--bv)",
+            borderRadius: 12,
+            padding: 16,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <div style={{ fontSize: 20, color: "var(--accent)" }}>✓</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>
+              Order Placed Successfully
+            </div>
+            <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+              Track your order status in the cart
+            </div>
+          </div>
+          <button
+            onClick={() => navigate("/cart", { state: { tab: "orders" } })}
+            style={{
+              padding: "8px 16px",
+              background: "var(--accent)",
+              color: "#0e0e0f",
+              border: "none",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            View Order →
+          </button>
+        </div>
+      )}
+
       {orderOpen && (
-        <OrderModal product={product} onClose={() => setOrderOpen(false)} onSubmit={handleOrderSubmit} />
+        <OrderModal
+          product={product}
+          onClose={() => setOrderOpen(false)}
+          onSubmit={handleOrderSubmit}
+          onViewOrder={() => navigate("/cart", { state: { tab: "orders" } })}
+        />
       )}
     </div>
   );
