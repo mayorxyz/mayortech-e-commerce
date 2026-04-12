@@ -74,6 +74,7 @@ export default function CartPage() {
     }
     setActiveTab("orders");
     setShowOrderSuccess(true);
+    setTimeout(() => setShowOrderSuccess(false), 2000);
 
     cartList.forEach((item) => {
       addOrderToHistory(

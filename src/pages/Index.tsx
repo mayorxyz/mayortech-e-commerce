@@ -146,6 +146,7 @@ export default function Index() {
       );
 
       setShowOrderSuccess(true);
+      setTimeout(() => setShowOrderSuccess(false), 2000);
       return true;
     },
     [orderProduct, placeOrder, showToast, addOrderToHistory]
