@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { useOrders } from "@/hooks/useOrders";
+import { useOrderTracking } from "@/hooks/useOrderTracking";
 import { sendOrderEmail } from "@/lib/emailjs";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
@@ -14,6 +15,7 @@ const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
 export default function CartPage() {
   const { cartItems, removeFromCart, updateCartQuantity, orderHistory, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
+  const { orders: trackedOrders } = useOrderTracking();
   const navigate = useNavigate();
   const location = useLocation();
   const [orderOpen, setOrderOpen] = useState(false);
@@ -111,7 +113,7 @@ export default function CartPage() {
           Cart <span>({totalItems})</span>
         </div>
         <div className={`tab${activeTab === "orders" ? " active" : ""}`} onClick={() => setActiveTab("orders")} style={{ cursor: "pointer" }}>
-          ORDER
+          ORDER {trackedOrders.length > 0 && <span>({trackedOrders.length})</span>}
         </div>
       </div>
 
