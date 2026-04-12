@@ -3,6 +3,7 @@ import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, X } from "lucide-react";
 import AdminOrderTracking from "@/components/AdminOrderTracking";
+import AdminPurchasedOrders from "@/components/AdminPurchasedOrders";
 
 const CATEGORY_OPTIONS = ["phones", "laptops", "earphones", "powerbanks", "accessories", "others"];
 const CONDITION_OPTIONS = ["Brand New", "UK Used", "Foreign Used"];
@@ -385,6 +386,9 @@ export default function AdminPage() {
 
       {/* Order Tracking Management */}
       <AdminOrderTracking />
+
+      {/* Purchased Orders Management */}
+      <AdminPurchasedOrders />
 
       {/* Products Grid */}
       <section className="bg-surface border border-border rounded-lg p-6">
