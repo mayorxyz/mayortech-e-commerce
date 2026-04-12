@@ -83,7 +83,7 @@ export default function AdminOrderTracking() {
                   </div>
                   <span className="text-xs text-muted">{order.orderId?.slice(0, 8)}</span>
                 </div>
-                <div className="text-xs text-muted mb-3">{order.items}</div>
+                <div className="text-xs text-muted mb-3">{Array.isArray(order.items) ? order.items.map((it: any) => it.productName || it.name || String(it)).join(", ") : String(order.items || "")}</div>
 
                 {/* Status selector */}
                 <div className="flex flex-wrap gap-1.5">
