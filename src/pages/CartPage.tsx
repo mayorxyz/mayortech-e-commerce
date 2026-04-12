@@ -113,7 +113,7 @@ export default function CartPage() {
           Cart <span>({totalItems})</span>
         </div>
         <div className={`tab${activeTab === "orders" ? " active" : ""}`} onClick={() => setActiveTab("orders")} style={{ cursor: "pointer" }}>
-          ORDER
+          ORDER {trackedOrders.length > 0 && <span>({trackedOrders.length})</span>}
         </div>
       </div>
 
