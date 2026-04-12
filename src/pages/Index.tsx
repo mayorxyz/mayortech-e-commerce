@@ -73,6 +73,9 @@ export default function Index() {
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [priceMin, setPriceMin] = useState(0);
+  const [priceMax, setPriceMax] = useState(2000000);
+  const [sortValue, setSortValue] = useState("newest");
 
   const filtered = useMemo(() => {
     let result =
