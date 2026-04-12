@@ -77,7 +77,6 @@ export function useOrders() {
     saveToLocalStorage(optimisticOrder);
 
     try {
-      // Firestore save
       const firestoreData = {
         customerName: order.customer_name,
         customerPhone: order.customer_phone,
@@ -88,22 +87,14 @@ export function useOrders() {
         createdAt: serverTimestamp(),
       };
 
-      let realOrderId = optimisticOrder.id;
-      try {
-        const docRef = await Promise.race([
-          addDoc(collection(db, "order_tracking"), firestoreData),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Firebase timeout")), 8000)),
-        ]);
-        realOrderId = docRef.id;
-      } catch (fbErr) {
-        console.warn("Firebase save failed/timed out, order saved locally:", fbErr);
-      }
+      // Fire-and-forget: don't await Firebase or Supabase
+      addDoc(collection(db, "order_tracking"), firestoreData)
+        .then((docRef) => {
+          const updatedOrder = { ...optimisticOrder, id: docRef.id, orderId: docRef.id };
+          saveToLocalStorage(updatedOrder);
+        })
+        .catch((err) => console.warn("Firebase save failed:", err));
 
-      // Update localStorage with real ID
-      const updatedOrder = { ...optimisticOrder, id: realOrderId, orderId: realOrderId };
-      saveToLocalStorage(updatedOrder);
-
-      // Supabase save (fire-and-forget)
       supabase.from("orders").insert({
         customer_name: order.customer_name,
         customer_phone: order.customer_phone,
@@ -115,7 +106,7 @@ export function useOrders() {
         if (error) console.warn("Supabase insert warning:", error.message);
       });
 
-      return { success: true, orderId: realOrderId };
+      return { success: true, orderId: optimisticOrder.orderId };
     } catch (err: any) {
       console.error("Order error:", err);
       // Remove failed order from localStorage
