@@ -15,6 +15,7 @@ const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
 export default function CartPage() {
   const { cartItems, removeFromCart, updateCartQuantity, orderHistory, toasts, showToast, addOrderToHistory } = useStore();
   const { placeOrder } = useOrders();
+  const { orders: trackedOrders } = useOrderTracking();
   const navigate = useNavigate();
   const location = useLocation();
   const [orderOpen, setOrderOpen] = useState(false);
