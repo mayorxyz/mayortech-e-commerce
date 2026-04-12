@@ -25,14 +25,21 @@ export default function OrderModal({ product, onClose, onSubmit, onViewOrder, is
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    const ok = await onSubmit({
-      name: name.trim(),
-      phone: phone.trim(),
-      email: email.trim(),
-      address: address.trim(),
-    });
-    setSubmitting(false);
-    if (ok) setSuccess(true);
+    const timeout = setTimeout(() => setSubmitting(false), 10000);
+    try {
+      const ok = await onSubmit({
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        address: address.trim(),
+      });
+      if (ok) setSuccess(true);
+    } catch (err) {
+      console.error("Order submission failed:", err);
+    } finally {
+      clearTimeout(timeout);
+      setSubmitting(false);
+    }
   };
 
   const handleViewOrder = () => {
