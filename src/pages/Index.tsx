@@ -49,14 +49,24 @@ function MasonryGrid({ items, cartItems, addToCart, setOrderProduct }: {
     <div className="grid-columns">
       {columns.map((col, ci) => (
         <div className="grid-col" key={ci}>
-          {col.map((p) => (
-            <ProductCard
+          {col.map((p, idx) => (
+            <motion.div
               key={p.id}
-              product={p}
-              inCart={!!cartItems[p.id]}
-              onAddToCart={() => addToCart(p)}
-              onOrder={() => setOrderProduct(p)}
-            />
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.45,
+                delay: Math.min(0.04 * (ci + idx * cols), 0.5),
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <ProductCard
+                product={p}
+                inCart={!!cartItems[p.id]}
+                onAddToCart={() => addToCart(p)}
+                onOrder={() => setOrderProduct(p)}
+              />
+            </motion.div>
           ))}
         </div>
       ))}
