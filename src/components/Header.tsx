@@ -25,7 +25,7 @@ export default function Header({ onAbout, onContact }: Props) {
 
   return (
     <div className="hdr">
-      <div className="logo" onClick={() => navigate("/")}>Mayor<span>Tech</span></div>
+      <div className="logo" onClick={() => navigate("/")}>M<span> Gadgets</span></div>
       <div className="hdr-r">
         <button
           className="cart-icon-btn"
@@ -115,7 +115,7 @@ export default function Header({ onAbout, onContact }: Props) {
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                About MayorTech
+                About M Gadgets
               </div>
             </div>
           </div>
