@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
       <div className="detail-hdr">
         <button className="back-btn" onClick={() => navigate("/")}>← Back</button>
         <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          Mayor<span>Tech</span>
+          M<span> Gadgets</span>
         </div>
         <button className="cart-btn-sm" onClick={() => navigate("/cart")}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
