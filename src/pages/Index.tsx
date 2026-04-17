@@ -172,6 +172,7 @@ export default function Index() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      <TechGridBackground />
       <ToastStack toasts={toasts} />
       <Header onAbout={() => setAboutOpen(true)} onContact={() => setContactOpen(true)} />
 
@@ -186,6 +187,8 @@ export default function Index() {
       />
 
       <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
+
+      <ServicesBentoBlock />
 
       <div className="why">
         <div className="why-i"><span>✓</span> Genuine products</div>
