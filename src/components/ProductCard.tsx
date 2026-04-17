@@ -24,8 +24,11 @@ export default function ProductCard({ product, inCart, onAddToCart, onOrder }: P
 
   const hasSpecs = product.specifications && Object.keys(product.specifications).length > 0;
 
+  const refId = `MG-${product.id.toString().slice(-4).toUpperCase()}`;
+
   return (
     <div className="card">
+      <span className="refid">{refId}</span>
       <div className="card-img" onClick={() => navigate(`/product/${product.id}`)}>
         <span className="ctag">{product.category}</span>
         <span className={condBadgeClass(product.condition)}>{product.condition}</span>

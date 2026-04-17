@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import CategoryFilter from "@/components/CategoryFilter";
 import SearchBar from "@/components/SearchBar";
@@ -12,6 +13,8 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AboutSheet from "@/components/AboutSheet";
 import ContactSheet from "@/components/ContactSheet";
+import ServicesBentoBlock from "@/components/ServicesBentoBlock";
+import TechGridBackground from "@/components/TechGridBackground";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import { useOrders } from "@/hooks/useOrders";
 import { useStore } from "@/contexts/StoreContext";
