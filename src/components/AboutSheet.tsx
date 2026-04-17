@@ -20,7 +20,7 @@ export default function AboutSheet({ open, onClose }: Props) {
   return (
     <div className={`aoverlay${open ? " show" : ""}`} onClick={handleOverlay}>
       <div className="asheet">
-        <h2>About MayorTech</h2>
+        <h2>About M Gadgets</h2>
         <p>
           We're a Port Harcourt-based gadget store specialising in genuine phones, laptops, earphones, and accessories.
           Every device we sell is carefully sourced and verified — whether brand new or UK-used.

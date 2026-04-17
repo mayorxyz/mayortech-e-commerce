@@ -352,3 +352,77 @@ body.light .ctag{background:rgba(255,255,255,0.75);border-color:rgba(0,0,0,0.1);
 @keyframes toast-out-anim{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-8px) scale(0.96)}}
 .animate-toast-in{animation:toast-in-anim .22s ease forwards}
 .animate-toast-out{animation:toast-out-anim .22s ease forwards}
+
+/* ============== ANIMATED TECH GRID BACKGROUND ============== */
+.tech-grid-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;background:#0A0A0A;overflow:hidden}
+body.light .tech-grid-bg{background:#f0efe9}
+.tech-grid-bg::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%);
+}
+body.light .tech-grid-bg::before{
+  background-image:
+    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+}
+.tech-grid-bg::after{
+  content:'';position:absolute;left:0;right:0;top:0;height:160px;
+  background:linear-gradient(180deg, transparent 0%, rgba(232,255,71,0.06) 50%, transparent 100%);
+  animation:scanPulse 8s linear infinite;
+  pointer-events:none;
+}
+@keyframes scanPulse{
+  0%{transform:translateY(-160px);opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(110vh);opacity:0}
+}
+
+/* Make app background transparent so the grid shows through */
+body{background:transparent}
+.hdr{background:rgba(14,14,15,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+body.light .hdr{background:rgba(240,239,233,0.7)}
+
+/* Card upgrade — neon hover with REF_ID */
+.card{position:relative;background:rgba(22,22,22,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(232,255,71,0.18);transition:border-color .25s, transform .25s, box-shadow .25s}
+body.light .card{background:rgba(255,255,255,0.65)}
+.card:hover{border-color:rgba(232,255,71,0.9);transform:translateY(-2px) scale(1.015);box-shadow:0 0 0 1px rgba(232,255,71,0.4), 0 12px 36px -12px rgba(232,255,71,0.45)}
+.card .refid{position:absolute;top:6px;right:8px;z-index:3;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.5px;color:rgba(232,255,71,0.85);background:rgba(10,10,10,0.55);border:1px solid rgba(232,255,71,0.25);padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px);pointer-events:none}
+body.light .card .refid{background:rgba(255,255,255,0.75);color:#5a6800;border-color:rgba(0,0,0,0.12)}
+
+/* ============== SERVICES BENTO BLOCK (homepage) ============== */
+.svc-bento{margin:8px 12px 16px;border-radius:18px;overflow:hidden;position:relative;background:linear-gradient(135deg, rgba(22,22,22,0.85) 0%, rgba(10,10,10,0.85) 100%);border:1px solid rgba(232,255,71,0.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:22px 20px;cursor:pointer;transition:border-color .25s, box-shadow .25s, transform .25s}
+body.light .svc-bento{background:linear-gradient(135deg, rgba(255,255,255,0.85), rgba(240,239,233,0.85))}
+@media(min-width:640px){.svc-bento{margin:8px 20px 20px;padding:28px 26px}}
+.svc-bento:hover{border-color:rgba(232,255,71,0.85);box-shadow:0 0 0 1px rgba(232,255,71,0.35), 0 16px 48px -16px rgba(232,255,71,0.35);transform:translateY(-2px)}
+.svc-bento::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(232,255,71,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,255,71,0.05) 1px, transparent 1px);
+  background-size:24px 24px;
+  mask-image:radial-gradient(ellipse at 80% 20%, black, transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at 80% 20%, black, transparent 70%);
+}
+.svc-bento-inner{position:relative;display:flex;flex-direction:column;gap:14px}
+.svc-bento-tag{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:1px;color:var(--accent);text-transform:uppercase}
+.svc-bento h3{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;line-height:1.15;color:var(--text);letter-spacing:-.5px}
+@media(min-width:640px){.svc-bento h3{font-size:28px}}
+.svc-bento h3 em{font-style:normal;color:var(--accent)}
+.svc-bento p{font-size:13px;color:var(--muted);line-height:1.55;max-width:560px}
+.svc-bento-icons{display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin-top:4px}
+.svc-bento-icons .si{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:10px;background:rgba(232,255,71,0.06);border:1px solid rgba(232,255,71,0.12);color:var(--text);transition:background .2s, border-color .2s}
+.svc-bento-icons .si:hover{background:rgba(232,255,71,0.14);border-color:rgba(232,255,71,0.45)}
+.svc-bento-icons .si svg{color:var(--accent)}
+.svc-bento-icons .si span{font-size:9.5px;text-align:center;color:var(--muted);line-height:1.1}
+.svc-bento-cta{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin-top:6px;padding:10px 18px;border-radius:50px;background:var(--accent);color:#0e0e0f;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;border:none;cursor:pointer;transition:transform .15s, background .2s}
+.svc-bento-cta:hover{background:var(--accent-dark);transform:translateX(2px)}
+
+/* Back to shop button (reusable) */
+.back-to-shop{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:50px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer;text-decoration:none;transition:background .2s, transform .15s}
+.back-to-shop:hover{background:rgba(232,255,71,0.12);transform:translateX(-2px)}

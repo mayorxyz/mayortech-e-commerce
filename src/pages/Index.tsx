@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import CategoryFilter from "@/components/CategoryFilter";
 import SearchBar from "@/components/SearchBar";
@@ -12,6 +13,8 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AboutSheet from "@/components/AboutSheet";
 import ContactSheet from "@/components/ContactSheet";
+import ServicesBentoBlock from "@/components/ServicesBentoBlock";
+import TechGridBackground from "@/components/TechGridBackground";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import { useOrders } from "@/hooks/useOrders";
 import { useStore } from "@/contexts/StoreContext";
@@ -46,14 +49,24 @@ function MasonryGrid({ items, cartItems, addToCart, setOrderProduct }: {
     <div className="grid-columns">
       {columns.map((col, ci) => (
         <div className="grid-col" key={ci}>
-          {col.map((p) => (
-            <ProductCard
+          {col.map((p, idx) => (
+            <motion.div
               key={p.id}
-              product={p}
-              inCart={!!cartItems[p.id]}
-              onAddToCart={() => addToCart(p)}
-              onOrder={() => setOrderProduct(p)}
-            />
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.45,
+                delay: Math.min(0.04 * (ci + idx * cols), 0.5),
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <ProductCard
+                product={p}
+                inCart={!!cartItems[p.id]}
+                onAddToCart={() => addToCart(p)}
+                onOrder={() => setOrderProduct(p)}
+              />
+            </motion.div>
           ))}
         </div>
       ))}
@@ -159,6 +172,7 @@ export default function Index() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      <TechGridBackground />
       <ToastStack toasts={toasts} />
       <Header onAbout={() => setAboutOpen(true)} onContact={() => setContactOpen(true)} />
 
@@ -173,6 +187,8 @@ export default function Index() {
       />
 
       <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
+
+      <ServicesBentoBlock />
 
       <div className="why">
         <div className="why-i"><span>✓</span> Genuine products</div>
