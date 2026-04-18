@@ -121,7 +121,7 @@ export default function ProductDetailPage() {
   };
 
   const shareProduct = () => {
-    const txt = encodeURIComponent(`Check out ${product.name} on M Gadgets — ${product.price}. ${window.location.href}`);
+    const txt = encodeURIComponent(`Check out ${product.name} on MRY Gadgets — ${product.price}. ${window.location.href}`);
     window.open(`https://wa.me/?text=${txt}`, "_blank");
   };
 
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
   return (
     <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      <Header onAbout={() => {}} onContact={() => {}} />
+      <Header onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} />
 
       {/* Image Gallery */}
       <div className="gallery">

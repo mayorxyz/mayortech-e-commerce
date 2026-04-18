@@ -11,8 +11,6 @@ import DeliveryExpander from "@/components/DeliveryExpander";
 import OrderProcessExpander from "@/components/OrderProcessExpander";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
-import AboutSheet from "@/components/AboutSheet";
-import ContactSheet from "@/components/ContactSheet";
 import ServicesBentoBlock from "@/components/ServicesBentoBlock";
 import TechGridBackground from "@/components/TechGridBackground";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
@@ -84,8 +82,6 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [orderProduct, setOrderProduct] = useState<Product | null>(null);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(2000000);
   const [sortValue, setSortValue] = useState("newest");
@@ -174,7 +170,7 @@ export default function Index() {
     <div style={{ minHeight: "100vh" }}>
       <TechGridBackground />
       <ToastStack toasts={toasts} />
-      <Header onAbout={() => setAboutOpen(true)} onContact={() => setContactOpen(true)} />
+      <Header onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} />
 
       <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
@@ -209,14 +205,8 @@ export default function Index() {
         <MasonryGrid items={filtered} cartItems={cartItems} addToCart={addToCart} setOrderProduct={setOrderProduct} />
       )}
 
-      <ServicesBentoBlock />
-
-      <OrderProcessExpander />
-      <DeliveryExpander />
       <Footer />
       <WhatsAppFloat />
-      <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} />
-      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} />
 
       {showOrderSuccess && (
         <div

@@ -9,6 +9,9 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
 import OrderTracker from "@/components/OrderTracker";
+import OrderProcessExpander from "@/components/OrderProcessExpander";
+import DeliveryExpander from "@/components/DeliveryExpander";
+import TechGridBackground from "@/components/TechGridBackground";
 import { Product } from "@/types/product";
 
 const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
@@ -104,9 +107,10 @@ export default function CartPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh", position: "relative" }}>
+      <TechGridBackground />
       <ToastStack toasts={toasts} />
-      <Header onAbout={() => {}} onContact={() => {}} />
+      <Header onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} />
       <div className="tabs">
         <div className={`tab${activeTab === "cart" ? " active" : ""}`} onClick={() => setActiveTab("cart")} style={{ cursor: "pointer" }}>
           Cart <span>({totalItems})</span>
@@ -239,6 +243,17 @@ export default function CartPage() {
       ) : (
         <OrderTracker />
       )}
+
+      <div style={{ padding: "0 20px 20px", maxWidth: 1100, margin: "0 auto" }}>
+        <h2 className="font-heading" style={{ fontSize: 18, color: "var(--text)", marginTop: 24, marginBottom: 4 }}>
+          How it works
+        </h2>
+        <div style={{ fontFamily: "monospace", fontSize: 11, color: "var(--muted)", marginBottom: 8 }}>
+          MRY // DELIVERY-GUIDE
+        </div>
+        <OrderProcessExpander />
+        <DeliveryExpander />
+      </div>
 
       {showOrderSuccess && (
         <div

@@ -14,8 +14,6 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
-import AboutSheet from "@/components/AboutSheet";
-import ContactSheet from "@/components/ContactSheet";
 
 type Service = {
   id: string;
@@ -167,18 +165,16 @@ function BentoCard({ service, onCta }: { service: Service; onCta: (a: string) =>
 
 export default function ServicesPage() {
   const navigate = useNavigate();
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
 
   const handleCta = (action: string) => {
     if (action === "shop") navigate("/");
-    else setContactOpen(true);
+    else navigate("/contact");
   };
 
   return (
     <div style={{ minHeight: "100vh", background: "transparent", color: "var(--text)", position: "relative" }}>
       <div className="mesh-overlay" aria-hidden />
-      <Header onAbout={() => setAboutOpen(true)} onContact={() => setContactOpen(true)} />
+      <Header onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} />
 
       <section
         style={{
@@ -279,8 +275,6 @@ export default function ServicesPage() {
 
       <Footer />
       <WhatsAppFloat className="wa-ping" />
-      <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} />
-      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} />
 
       <style>{`
         .mesh-overlay {
