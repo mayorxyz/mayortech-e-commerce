@@ -25,7 +25,7 @@ export default function Header({ onAbout, onContact }: Props) {
 
   return (
     <div className="hdr">
-      <div className="logo" onClick={() => navigate("/")}>MRY<span> Gadgets</span></div>
+      <div className="logo" onClick={() => navigate("/")}>M<span> Gadgets</span></div>
       <div className="hdr-r">
         <button
           className="cart-icon-btn"
