@@ -4,6 +4,7 @@ import { useStore } from "@/contexts/StoreContext";
 import { useOrders } from "@/hooks/useOrders";
 import { useOrderTracking } from "@/hooks/useOrderTracking";
 import { sendOrderEmail } from "@/lib/emailjs";
+import Header from "@/components/Header";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
@@ -105,16 +106,13 @@ export default function CartPage() {
   return (
     <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      <div className="phdr">
-        <button className="back-btn" onClick={() => navigate("/")}>← Back</button>
-        <div className="ptitle">Shopping Cart</div>
-      </div>
+      <Header onAbout={() => {}} onContact={() => {}} />
       <div className="tabs">
         <div className={`tab${activeTab === "cart" ? " active" : ""}`} onClick={() => setActiveTab("cart")} style={{ cursor: "pointer" }}>
           Cart <span>({totalItems})</span>
         </div>
         <div className={`tab${activeTab === "orders" ? " active" : ""}`} onClick={() => setActiveTab("orders")} style={{ cursor: "pointer" }}>
-          ORDER {trackedOrders.length > 0 && <span>({trackedOrders.length})</span>}
+          ORDERS {trackedOrders.length > 0 && <span>({trackedOrders.length})</span>}
         </div>
       </div>
 

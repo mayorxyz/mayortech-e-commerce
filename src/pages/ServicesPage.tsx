@@ -176,13 +176,47 @@ export default function ServicesPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "transparent", color: "var(--text)", position: "relative" }}>
       <div className="mesh-overlay" aria-hidden />
       <Header onAbout={() => setAboutOpen(true)} onContact={() => setContactOpen(true)} />
 
       <section
         style={{
-          padding: "56px 20px 28px",
+          padding: "16px 20px 0",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            background: "transparent",
+            border: "1px solid var(--bv)",
+            color: "var(--text)",
+            padding: "7px 14px",
+            borderRadius: "50px",
+            cursor: "pointer",
+            fontSize: "13px",
+            fontWeight: 500,
+            transition: "all 0.2s",
+            marginBottom: "16px",
+          }}
+          onMouseEnter={(e) => {
+            (e.target as HTMLButtonElement).style.borderColor = "var(--accent)";
+            (e.target as HTMLButtonElement).style.color = "var(--accent)";
+          }}
+          onMouseLeave={(e) => {
+            (e.target as HTMLButtonElement).style.borderColor = "var(--bv)";
+            (e.target as HTMLButtonElement).style.color = "var(--text)";
+          }}
+        >
+          ← Back
+        </button>
+      </section>
+
+      <section
+        style={{
+          padding: "28px 20px 28px",
           textAlign: "center",
           maxWidth: 880,
           margin: "0 auto",

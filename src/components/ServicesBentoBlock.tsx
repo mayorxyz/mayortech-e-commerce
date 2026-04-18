@@ -30,21 +30,21 @@ export default function ServicesBentoBlock() {
     >
       <div className="svc-bento-inner">
         <span className="svc-bento-tag">SVC // M-OPS</span>
-        <h3>Full device care</h3>
-        <p>Repairs, upgrades, setup, data transfer, and trade-ins.</p>
+        <h3>More than a shop — <em>full device care.</em></h3>
+        <p>Repairs, performance upgrades, setup, data transfer, and trade-ins. One team for everything your phone or laptop needs.</p>
 
-        <div className="svc-bento-chips">
+        <div className="svc-bento-icons">
           {services.map((svc) => (
-            <button
+            <div
               key={svc.label}
-              className="svc-chip"
+              className="svc-icon-item"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate("/services");
               }}
             >
-              {svc.label}
-            </button>
+              <span className="svc-icon">{svc.label}</span>
+            </div>
           ))}
         </div>
 
@@ -55,7 +55,7 @@ export default function ServicesBentoBlock() {
             navigate("/services");
           }}
         >
-          Explore all →
+          Explore all services →
         </button>
       </div>
     </motion.div>

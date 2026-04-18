@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
+import Header from "@/components/Header";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 
@@ -16,10 +17,7 @@ export default function SavedPage() {
   return (
     <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      <div className="phdr">
-        <button className="back-btn" onClick={() => navigate("/")}>← Back</button>
-        <div className="ptitle">My Saved</div>
-      </div>
+      <Header onAbout={() => {}} onContact={() => {}} />
       <div className="tabs">
         <div className={`tab${tab === "bkmarks" ? " active" : ""}`} onClick={() => setTab("bkmarks")}>
           Bookmarked <span>({savedList.length})</span>
