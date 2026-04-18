@@ -24,12 +24,9 @@ export default function ProductCard({ product, inCart, onAddToCart, onOrder }: P
 
   const hasSpecs = product.specifications && Object.keys(product.specifications).length > 0;
 
-  const refId = `MG-${product.id.toString().slice(-4).toUpperCase()}`;
-
   return (
-    <div className="card">
-      <span className="refid">{refId}</span>
-      <div className="card-img" onClick={() => navigate(`/product/${product.id}`)}>
+    <div className="card" onClick={() => !isSold && navigate(`/product/${product.id}`)} style={{ cursor: !isSold ? 'pointer' : 'default' }}>
+      <div className="card-img">
         <span className="ctag">{product.category}</span>
         <span className={condBadgeClass(product.condition)}>{product.condition}</span>
         {product.sold && <span className="sold-badge">Sold</span>}

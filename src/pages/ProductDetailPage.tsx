@@ -6,6 +6,7 @@ import { sendOrderEmail } from "@/lib/emailjs";
 import { supabase } from "@/lib/supabase";
 import { useSupabaseProducts } from "@/hooks/useSupabaseProducts";
 import { Product } from "@/types/product";
+import Header from "@/components/Header";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ToastStack from "@/components/ToastStack";
 import OrderModal from "@/components/OrderModal";
@@ -160,20 +161,7 @@ export default function ProductDetailPage() {
   return (
     <div style={{ minHeight: "100vh" }}>
       <ToastStack toasts={toasts} />
-      <div className="detail-hdr">
-        <button className="back-btn" onClick={() => navigate("/")}>← Back</button>
-        <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          M<span> Gadgets</span>
-        </div>
-        <button className="cart-btn-sm" onClick={() => navigate("/cart")}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-          </svg>
-          <div className={`ccnt${bumpCart ? " bump" : ""}`}>{cartCount}</div>
-        </button>
-      </div>
+      <Header onAbout={() => {}} onContact={() => {}} />
 
       {/* Image Gallery */}
       <div className="gallery">

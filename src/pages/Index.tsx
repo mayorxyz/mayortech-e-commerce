@@ -188,8 +188,6 @@ export default function Index() {
 
       <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
 
-      <ServicesBentoBlock />
-
       <div className="why">
         <div className="why-i"><span>✓</span> Genuine products</div>
         <div className="why-i"><span>✓</span> Fast delivery</div>
@@ -210,6 +208,8 @@ export default function Index() {
       ) : (
         <MasonryGrid items={filtered} cartItems={cartItems} addToCart={addToCart} setOrderProduct={setOrderProduct} />
       )}
+
+      <ServicesBentoBlock />
 
       <OrderProcessExpander />
       <DeliveryExpander />

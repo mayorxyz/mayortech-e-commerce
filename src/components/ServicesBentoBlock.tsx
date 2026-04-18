@@ -1,9 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Wrench, Rocket, RefreshCw, Settings, ArrowRight } from "lucide-react";
 
 export default function ServicesBentoBlock() {
   const navigate = useNavigate();
+
+  const services = [
+    { label: "Repairs", icon: "🔧" },
+    { label: "Upgrades", icon: "⚡" },
+    { label: "Setup", icon: "⚙" },
+    { label: "Swap", icon: "🔄" },
+  ];
 
   return (
     <motion.div
@@ -24,30 +30,22 @@ export default function ServicesBentoBlock() {
     >
       <div className="svc-bento-inner">
         <span className="svc-bento-tag">SVC // M-OPS</span>
-        <h3>
-          More than a shop — <em>full device care</em>.
-        </h3>
-        <p>
-          Repairs, performance upgrades, setup, data transfer, and trade-ins. One team for everything your phone or laptop needs.
-        </p>
+        <h3>Full device care</h3>
+        <p>Repairs, upgrades, setup, data transfer, and trade-ins.</p>
 
-        <div className="svc-bento-icons" aria-hidden="true">
-          <div className="si">
-            <Wrench size={18} />
-            <span>Repairs</span>
-          </div>
-          <div className="si">
-            <Rocket size={18} />
-            <span>Upgrades</span>
-          </div>
-          <div className="si">
-            <Settings size={18} />
-            <span>Setup</span>
-          </div>
-          <div className="si">
-            <RefreshCw size={18} />
-            <span>Swap</span>
-          </div>
+        <div className="svc-bento-chips">
+          {services.map((svc) => (
+            <button
+              key={svc.label}
+              className="svc-chip"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate("/services");
+              }}
+            >
+              {svc.label}
+            </button>
+          ))}
         </div>
 
         <button
@@ -57,7 +55,7 @@ export default function ServicesBentoBlock() {
             navigate("/services");
           }}
         >
-          Explore all services <ArrowRight size={14} />
+          Explore all →
         </button>
       </div>
     </motion.div>
