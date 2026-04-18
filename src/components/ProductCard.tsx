@@ -34,9 +34,15 @@ export default function ProductCard({ product, inCart, onAddToCart, onOrder }: P
           src={product.image}
           alt={product.name}
           onError={(e) => {
-            (e.target as HTMLImageElement).style.opacity = "0.2";
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const fallback = target.parentElement?.querySelector('.image-fallback') as HTMLElement;
+            if (fallback) fallback.style.display = 'flex';
           }}
         />
+        <div className="image-fallback" style={{ display: 'none', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', background: 'var(--surface2)', color: 'var(--muted)', fontSize: '14px', fontWeight: '500' }}>
+          {product.name}
+        </div>
         {isSold && <div className="sold-ov">Sold Out</div>}
       </div>
 

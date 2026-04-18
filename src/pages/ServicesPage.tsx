@@ -1,4 +1,5 @@
-import { useState, useRef, MouseEvent } from "react";
+import { useEffect, useRef, useState, MouseEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Smartphone,
@@ -15,10 +16,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 
+const WHATSAPP = import.meta.env.VITE_ADMIN_WHATSAPP || "2348000000000";
+
 type Service = {
   id: string;
   title: string;
   desc: string;
+  longDescription: string;
   Icon: LucideIcon;
   cta: string;
   action: "shop" | "contact";
@@ -31,6 +35,7 @@ const services: Service[] = [
     id: "MT-01",
     title: "Premium Gadget Sales",
     desc: "Get the right device, not just any device. We match you with the right pick for your budget and ensure you have everything needed to get started.",
+    longDescription: "Browse premium phones and laptops with expert guidance. We hand-select devices that deliver the best value and performance for your daily needs.",
     Icon: Smartphone,
     cta: "Explore Inventory",
     action: "shop",
@@ -41,6 +46,7 @@ const services: Service[] = [
     id: "MT-02",
     title: "Device Repairs",
     desc: "From cracked screens to complex motherboard faults. Advanced laptop diagnostics with no guesswork and no long waits.",
+    longDescription: "We perform complete motherboard diagnostics, component-level repairs, and fast screen replacement so your laptop or phone looks and works like new.",
     Icon: Wrench,
     cta: "Get Quote",
     action: "contact",
@@ -50,6 +56,7 @@ const services: Service[] = [
     id: "MT-03",
     title: "Setup and Installation",
     desc: "OS installation, app setup, and account configuration. Your device comes back fully optimized and ready for immediate action.",
+    longDescription: "We install operating systems, configure accounts, tune settings, and remove unneeded apps so your device is clean, secure, and ready to use.",
     Icon: Settings,
     cta: "Book Setup",
     action: "contact",
@@ -59,6 +66,7 @@ const services: Service[] = [
     id: "MT-05",
     title: "Performance Upgrades",
     desc: "High-speed SSD installations and RAM expansions. Give your older machine a massive boost in speed and responsiveness.",
+    longDescription: "Upgrade with high-speed SSDs, extra RAM, and performance tuning to make your device faster, more responsive, and better suited for modern apps.",
     Icon: Rocket,
     cta: "Upgrade Now",
     action: "contact",
@@ -69,6 +77,7 @@ const services: Service[] = [
     id: "MT-04",
     title: "Data Transfer and Backup",
     desc: "Seamless migration of your photos, documents, and files. We also implement robust backup systems for total peace of mind.",
+    longDescription: "We safely move your data, set up backup solutions, and ensure nothing is lost during device replacements or system upgrades.",
     Icon: Database,
     cta: "Secure Files",
     action: "contact",
@@ -78,6 +87,7 @@ const services: Service[] = [
     id: "MT-06",
     title: "Cleaning and Maintenance",
     desc: "Deep-cleaning of internal cooling systems and fresh thermal paste to prevent overheating and extend hardware life.",
+    longDescription: "Internal dust removal, fan maintenance, and fresh thermal paste help keep your device cool and stable for longer service life.",
     Icon: Wind,
     cta: "Book Service",
     action: "contact",
@@ -87,6 +97,7 @@ const services: Service[] = [
     id: "MT-07",
     title: "Software Troubleshooting",
     desc: "Eliminate crashes, malware, and OS-level bugs. We perform deep system cleans to get everything running smoothly again.",
+    longDescription: "We identify software issues, remove harmful programs, fix crashes, and restore your device to a stable, usable state.",
     Icon: Cpu,
     cta: "Fix Device",
     action: "contact",
@@ -96,6 +107,7 @@ const services: Service[] = [
     id: "MT-08",
     title: "The Device Swap",
     desc: "Trade in your current device for instant credit toward a newer model. The smartest and fastest way to stay on the latest tech.",
+    longDescription: "We complete a transparent fair-market valuation, then apply the trade-in credit instantly toward the next device you choose.",
     Icon: RefreshCw,
     cta: "Swap Today",
     action: "contact",
@@ -103,9 +115,65 @@ const services: Service[] = [
   },
 ];
 
-function BentoCard({ service, onCta }: { service: Service; onCta: (a: string) => void }) {
+// Map service titles to their image prefixes in public folder
+const serviceImageMap: Record<string, { prefix: string; extensions: string[] }> = {
+  "Premium Gadget Sales": { prefix: "Gadget Sales", extensions: ["jpg", "jpg", "jpg"] },
+  "Device Repairs": { prefix: "repair", extensions: ["jpg", "jpg", "webp"] },
+  "Setup and Installation": { prefix: "Setup and Installation", extensions: ["png", "jpg"] },
+  "Performance Upgrades": { prefix: "Performance Upgrades", extensions: ["webp", "jpg", "jpg"] },
+  "Data Transfer and Backup": { prefix: "Data Transfer and Backup", extensions: ["jpg", "jpg"] },
+  "Cleaning and Maintenance": { prefix: "Cleaning and Maintenance", extensions: ["jpg", "jpg"] },
+  "Software Troubleshooting": { prefix: "Software Troubleshooting", extensions: ["jpg", "png"] },
+  "The Device Swap": { prefix: "The Device Swap", extensions: [] },
+};
+
+function getServiceImage(title: string, index: number) {
+  const config = serviceImageMap[title];
+  if (!config) return "";
+  
+  const { prefix, extensions } = config;
+  if (index >= extensions.length) return "";
+  
+  const ext = extensions[index];
+  const indexNum = index + 1;
+  
+  // Special handling for "Data Transfer and Backup" which has inconsistent naming
+  if (prefix === "Data Transfer and Backup") {
+    if (index === 0) {
+      return `/${prefix}1.${ext}`;
+    } else {
+      return `/${prefix} ${indexNum}.${ext}`;
+    }
+  }
+  
+  // Standard format: "Prefix #.ext"
+  return `/${prefix} ${indexNum}.${ext}`;
+}
+
+const gadgetSalesImages = [
+  "/Gadget Sales 1.jpg",
+  "/Gadget Sales 2.jpg",
+  "/Gadget Sales 3.jpg",
+];
+
+function BentoCard({
+  service,
+  onCta,
+  imageIndex,
+  onExpand,
+}: {
+  service: Service;
+  onCta: (a: string) => void;
+  imageIndex: number;
+  onExpand: (id: string) => void;
+}) {
   const ref = useRef<HTMLElement>(null);
   const { id, title, desc, Icon, cta, action, span, effect } = service;
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageIndex, id]);
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
     const el = ref.current;
@@ -131,15 +199,50 @@ function BentoCard({ service, onCta }: { service: Service; onCta: (a: string) =>
   };
 
   return (
-    <article
+    <motion.article
       ref={ref}
+      layoutId={`card-${id}`}
       className={`bento-card bento-${span}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onClick={() => onExpand(id)}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      style={{ cursor: "pointer" }}
     >
       <div className="bento-spotlight" aria-hidden />
       <div className="bento-noise" aria-hidden />
       {effect === "speed" && <div className="speed-lines" aria-hidden />}
+
+      <div className="service-image-wrap">
+        <AnimatePresence mode="wait">
+          {imageFailed ? (
+            <motion.div
+              key={`fallback-${id}-${imageIndex}`}
+              className="service-image-fallback"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {title}
+            </motion.div>
+          ) : (
+            <motion.img
+              key={`${id}-${imageIndex}`}
+              src={getServiceImage(title, imageIndex)}
+              alt={`${title} image`}
+              className="service-card-image"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              layoutId={`image-${id}`}
+              onError={() => setImageFailed(true)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className="bento-inner">
         <div className="bento-top">
@@ -154,25 +257,72 @@ function BentoCard({ service, onCta }: { service: Service; onCta: (a: string) =>
           <p className="bento-desc">{desc}</p>
         </div>
 
-        <button className="bento-cta" onClick={() => onCta(action)}>
+        <button
+          className="bento-cta"
+          onClick={(event) => {
+            event.stopPropagation();
+            onCta(action);
+          }}
+        >
           {cta}
           <span aria-hidden>→</span>
         </button>
       </div>
-    </article>
+    </motion.article>
   );
 }
 
 export default function ServicesPage() {
   const navigate = useNavigate();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [imageIndex, setImageIndex] = useState<Record<string, number>>(
+    () => Object.fromEntries(services.map((service) => [service.id, 0]))
+  );
+  const [gadgetSalesIndex, setGadgetSalesIndex] = useState(0);
+  const [gadgetSalesError, setGadgetSalesError] = useState(false);
+  const [expandedImageError, setExpandedImageError] = useState(false);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setImageIndex((prev) => {
+        return services.reduce((acc, service) => {
+          acc[service.id] = ((prev[service.id] ?? 0) + 1) % 3;
+          return acc;
+        }, {} as Record<string, number>);
+      });
+      setGadgetSalesIndex((prev) => (prev + 1) % gadgetSalesImages.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setGadgetSalesError(false);
+  }, [gadgetSalesIndex]);
+
+  useEffect(() => {
+    setExpandedImageError(false);
+  }, [expandedId, imageIndex]);
 
   const handleCta = (action: string) => {
     if (action === "shop") navigate("/");
     else navigate("/contact");
   };
 
+  const currentImageIndex = (id: string) => imageIndex[id] ?? 0;
+  const expandedService = expandedId ? services.find((s) => s.id === expandedId) : null;
+
   return (
-    <div style={{ minHeight: "100vh", background: "transparent", color: "var(--text)", position: "relative" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0A0A0A",
+        color: "var(--text)",
+        position: "relative",
+        backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+        backgroundSize: "70px 70px",
+      }}
+    >
       <div className="mesh-overlay" aria-hidden />
       <Header onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} />
 
@@ -223,6 +373,7 @@ export default function ServicesPage() {
         <div className="services-eyebrow">
           <span className="dot" /> SERVICES // MT_SYSTEMS
         </div>
+        <div className="services-brand">M Gadgets</div>
         <h1
           style={{
             fontFamily: "Syne, sans-serif",
@@ -253,6 +404,55 @@ export default function ServicesPage() {
 
       <section
         style={{
+          padding: "16px 20px 56px",
+          maxWidth: 1280,
+          margin: "0 auto",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <div className="services-eyebrow">
+          <span className="dot" /> GADGET SALES // FEATURED
+        </div>
+        <div className="gadget-sales-panel">
+          <div className="service-image-wrap gadget-sales-image-wrap">
+            <AnimatePresence mode="wait">
+              {gadgetSalesError ? (
+                <motion.div
+                  key={`gadget-fallback-${gadgetSalesIndex}`}
+                  className="service-image-fallback"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  Gadget Sales
+                </motion.div>
+              ) : (
+                <motion.img
+                  key={gadgetSalesImages[gadgetSalesIndex]}
+                  src={gadgetSalesImages[gadgetSalesIndex]}
+                  alt={`Featured gadget sales image ${gadgetSalesIndex + 1}`}
+                  className="service-card-image"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1 }}
+                  onError={() => setGadgetSalesError(true)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+          <div className="gadget-sales-copy">
+            <h2>New arrivals ready for sale</h2>
+            <p>
+              See the latest gadgets hand-picked for performance and style. Each image above is a local asset with consistent aspect ratio and clean object-cover presentation.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        style={{
           padding: "16px 20px 64px",
           maxWidth: 1280,
           margin: "0 auto",
@@ -267,11 +467,77 @@ export default function ServicesPage() {
               className="bento-cell-wrap"
               style={{ animationDelay: `${i * 80}ms` }}
             >
-              <BentoCard service={s} onCta={handleCta} />
+              <BentoCard
+                service={s}
+                onCta={handleCta}
+                imageIndex={currentImageIndex(s.id)}
+                onExpand={setExpandedId}
+              />
             </div>
           ))}
         </div>
       </section>
+
+      <AnimatePresence>
+        {expandedService ? (
+          <motion.div
+            className="expanded-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setExpandedId(null)}
+          >
+            <motion.section
+              className="expanded-panel"
+              layoutId={`card-${expandedService.id}`}
+              onClick={(event) => event.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              <div className="expanded-top">
+                {expandedImageError ? (
+                  <div className="service-image-fallback expanded-image-fallback">
+                    {expandedService.title}
+                  </div>
+                ) : (
+                  <motion.img
+                    src={getServiceImage(expandedService.title, currentImageIndex(expandedService.id))}
+                    alt={expandedService.title}
+                    className="expanded-image"
+                    layoutId={`image-${expandedService.id}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    onError={() => setExpandedImageError(true)}
+                  />
+                )}
+                <div className="expanded-meta">
+                  <span className="bento-id">{expandedService.id}</span>
+                  <h2>{expandedService.title}</h2>
+                  <p>{expandedService.desc}</p>
+                </div>
+              </div>
+
+              <div className="expanded-body">
+                <p>{expandedService.longDescription}</p>
+                <div className="expanded-actions">
+                  <button
+                    className="expanded-whatsapp"
+                    onClick={() => window.open(`https://wa.me/${WHATSAPP}`, "_blank")}
+                  >
+                    Chat on WhatsApp
+                  </button>
+                  <button className="expanded-close" onClick={() => setExpandedId(null)}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.section>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <Footer />
       <WhatsAppFloat className="wa-ping" />
@@ -323,19 +589,19 @@ export default function ServicesPage() {
           display: grid;
           grid-template-columns: 1fr;
           grid-auto-rows: minmax(180px, auto);
-          gap: 14px;
+          gap: 24px;
         }
         @media (min-width: 640px) {
           .bento-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 28px;
           }
         }
         @media (min-width: 1024px) {
           .bento-grid {
             grid-template-columns: repeat(4, 1fr);
             grid-auto-rows: 220px;
-            gap: 18px;
+            gap: 32px;
           }
           .bento-featured { grid-column: span 2; grid-row: span 2; }
           .bento-wide { grid-column: span 2; }
@@ -356,7 +622,7 @@ export default function ServicesPage() {
         .bento-card {
           position: relative;
           height: 100%;
-          min-height: 200px;
+          min-height: 320px;
           border-radius: 18px;
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
@@ -367,6 +633,8 @@ export default function ServicesPage() {
           transform-style: preserve-3d;
           transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
           transition: transform 0.25s ease, border-color 0.3s ease, background 0.3s ease;
+          display: flex;
+          flex-direction: column;
         }
         body.light .bento-card {
           background: rgba(255,255,255,0.7);
@@ -451,13 +719,13 @@ export default function ServicesPage() {
         .bento-inner {
           position: relative;
           z-index: 2;
-          height: 100%;
-          padding: 22px 22px 20px;
+          flex: 1;
+          padding: 20px 20px 18px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 12px;
         }
-        .bento-featured .bento-inner { padding: 28px; gap: 18px; }
+        .bento-featured .bento-inner { padding: 24px; gap: 16px; }
 
         .bento-top {
           display: flex;
@@ -508,21 +776,25 @@ export default function ServicesPage() {
         .bento-title {
           font-family: Syne, sans-serif;
           font-weight: 700;
-          font-size: 17px;
+          font-size: 13px;
           letter-spacing: -0.01em;
           color: var(--text);
           line-height: 1.2;
         }
-        .bento-featured .bento-title { font-size: 26px; line-height: 1.1; }
+        .bento-featured .bento-title { font-size: 16px; line-height: 1.1; }
         @media (min-width: 1024px) {
-          .bento-featured .bento-title { font-size: 32px; }
+          .bento-featured .bento-title { font-size: 18px; }
         }
         .bento-desc {
-          font-size: 13px;
-          line-height: 1.55;
+          font-size: 10px;
+          line-height: 1.4;
           color: var(--muted);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
-        .bento-featured .bento-desc { font-size: 14px; }
+        .bento-featured .bento-desc { font-size: 11px; line-height: 1.45; }
 
         .bento-cta {
           align-self: flex-start;
@@ -544,6 +816,184 @@ export default function ServicesPage() {
           color: #0e0e0f;
           border-color: var(--accent);
           transform: translateX(2px);
+        }
+
+        .service-image-wrap {
+          position: relative;
+          border-radius: 18px;
+          overflow: hidden;
+          height: 160px;
+          flex-shrink: 0;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .gadget-sales-image-wrap {
+          height: 280px;
+          border: 2px solid #DFFF00;
+        }
+        .service-card-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .service-image-fallback {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          font-weight: 600;
+          color: #0A0A0A;
+          background: #DFFF00;
+          border: 2px solid #DFFF00;
+          border-radius: 18px;
+          font-family: Syne, sans-serif;
+          text-align: center;
+          padding: 20px;
+          word-break: break-word;
+        }
+        .expanded-image-fallback {
+          border-radius: 18px;
+          min-height: 300px;
+        }
+
+        .services-brand {
+          margin: 18px auto 0;
+          color: #DFFF00;
+          font-weight: 700;
+          letter-spacing: 0.24em;
+          font-size: 12px;
+          text-transform: uppercase;
+          opacity: 0.9;
+        }
+
+        .gadget-sales-panel {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+          align-items: start;
+          margin-top: 32px;
+        }
+        @media (min-width: 900px) {
+          .gadget-sales-panel {
+            grid-template-columns: 1.4fr 0.6fr;
+            gap: 32px;
+            align-items: center;
+          }
+        }
+        .gadget-sales-copy h2 {
+          font-family: Syne, sans-serif;
+          font-size: clamp(24px, 4vw, 42px);
+          font-weight: 800;
+          margin: 0 0 12px;
+          color: var(--text);
+        }
+        .gadget-sales-copy p {
+          font-size: 15px;
+          color: var(--muted);
+          line-height: 1.7;
+          margin: 0;
+        }
+
+        .expanded-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          backdrop-filter: blur(18px);
+          background: rgba(10, 10, 10, 0.92);
+          padding: 30px 16px;
+        }
+        .expanded-panel {
+          width: min(1100px, 100%);
+          max-width: 1120px;
+          border: 2px solid #DFFF00;
+          border-radius: 26px;
+          background: #0A0A0A;
+          box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+          overflow: hidden;
+          color: #f5f5f5;
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+        .expanded-top {
+          display: grid;
+          gap: 24px;
+          padding: 26px;
+        }
+        @media (min-width: 900px) {
+          .expanded-top {
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: center;
+          }
+        }
+        .expanded-image {
+          width: 100%;
+          height: 100%;
+          min-height: 300px;
+          object-fit: cover;
+          border-radius: 18px;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .expanded-meta h2 {
+          font-family: Syne, sans-serif;
+          font-size: clamp(32px, 4vw, 46px);
+          margin: 0 0 14px;
+        }
+        .expanded-meta p {
+          color: rgba(255,255,255,0.78);
+          line-height: 1.75;
+          margin: 0;
+        }
+        .expanded-body {
+          padding: 0 26px 26px;
+          border-top: 1px solid rgba(255,255,255,0.06);
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .expanded-body p {
+          max-width: 860px;
+          color: rgba(255,255,255,0.82);
+          line-height: 1.8;
+          margin: 0;
+        }
+        .expanded-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+        }
+        .expanded-whatsapp,
+        .expanded-close {
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 999px;
+          padding: 14px 22px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          min-width: 180px;
+        }
+        .expanded-whatsapp {
+          background: #DFFF00;
+          color: #101010;
+          border-color: #DFFF00;
+        }
+        .expanded-whatsapp:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 18px 32px rgba(223,255,0,0.18);
+        }
+        .expanded-close {
+          background: transparent;
+          color: #ffffff;
+        }
+        .expanded-close:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(255,255,255,0.28);
         }
 
         .wa-ping {
