@@ -82,6 +82,7 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [orderProduct, setOrderProduct] = useState<Product | null>(null);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(2000000);
   const [sortValue, setSortValue] = useState("newest");
