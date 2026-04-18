@@ -173,15 +173,34 @@ export default function Index() {
       <ToastStack toasts={toasts} />
       <Header onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} />
 
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      {/* Mobile-only: Search & Filter toggle */}
+      <div className="mobile-filter-bar">
+        <button
+          className="mobile-filter-btn"
+          onClick={() => setFiltersOpen((v) => !v)}
+          aria-expanded={filtersOpen}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          {searchQuery ? `"${searchQuery}"` : "Search & Filter"}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginLeft: "auto", transform: filtersOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </div>
 
-      <PriceFilter
-        priceMin={priceMin}
-        priceMax={priceMax}
-        onPriceChange={handlePriceChange}
-        sortValue={sortValue}
-        onSortChange={setSortValue}
-      />
+      <div className={`filters-collapsible${filtersOpen ? " open" : ""}`}>
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <PriceFilter
+          priceMin={priceMin}
+          priceMax={priceMax}
+          onPriceChange={handlePriceChange}
+          sortValue={sortValue}
+          onSortChange={setSortValue}
+        />
+      </div>
 
       <CategoryFilter active={activeCategory} onSelect={setActiveCategory} />
 
