@@ -249,7 +249,7 @@ export default function CartPage() {
           How it works
         </h2>
         <div style={{ fontFamily: "monospace", fontSize: 11, color: "var(--muted)", marginBottom: 8 }}>
-          MRY // DELIVERY-GUIDE
+          MG // DELIVERY-GUIDE
         </div>
         <OrderProcessExpander />
         <DeliveryExpander />

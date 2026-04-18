@@ -43,10 +43,10 @@ export default function AboutPage() {
         </button>
 
         <h1 className="font-heading" style={{ fontSize: 36, marginBottom: 8, color: "var(--text)" }}>
-          About <span style={{ color: "var(--accent)" }}>MRY Gadgets</span>
+          About <span style={{ color: "var(--accent)" }}>M Gadgets</span>
         </h1>
         <div style={{ fontFamily: "monospace", fontSize: 11, color: "var(--muted)", marginBottom: 20 }}>
-          MRY // ABOUT-01
+          MG // ABOUT-01
         </div>
 
         <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text)", marginBottom: 24 }}>
