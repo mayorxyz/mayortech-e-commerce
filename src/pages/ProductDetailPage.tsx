@@ -121,7 +121,7 @@ export default function ProductDetailPage() {
   };
 
   const shareProduct = () => {
-    const txt = encodeURIComponent(`Check out ${product.name} on MRY Gadgets — ${product.price}. ${window.location.href}`);
+    const txt = encodeURIComponent(`Check out ${product.name} on M Gadgets — ${product.price}. ${window.location.href}`);
     window.open(`https://wa.me/?text=${txt}`, "_blank");
   };
 

@@ -50,7 +50,7 @@ export default function ContactPage() {
           Contact <span style={{ color: "var(--accent)" }}>Us</span>
         </h1>
         <div style={{ fontFamily: "monospace", fontSize: 11, color: "var(--muted)", marginBottom: 28 }}>
-          MRY // CONTACT-01
+          MG // CONTACT-01
         </div>
 
         <div
