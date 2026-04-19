@@ -363,17 +363,25 @@ export default function ServicesPage() {
 
   // Global cycling — each service wraps within its own image count
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setImageIndex((prev) =>
-        services.reduce((acc, s) => {
-          const count = imageCount(s.title);
-          acc[s.id] = count > 0 ? ((prev[s.id] ?? 0) + 1) % count : 0;
-          return acc;
-        }, {} as Record<string, number>)
-      );
-      setGadgetSalesIndex((p) => (p + 1) % gadgetSalesImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    const timers: NodeJS.Timeout[] = [];
+
+    services.forEach((s, index) => {
+      const count = imageCount(s.title);
+      if (count <= 1) return;
+
+      const intervalTime = 2500 + index * 800; // 👈 stagger
+
+      const timer = setInterval(() => {
+        setImageIndex((prev) => ({
+          ...prev,
+          [s.id]: ((prev[s.id] ?? 0) + 1) % count,
+        }));
+      }, intervalTime);
+
+      timers.push(timer);
+    });
+
+    return () => timers.forEach(clearInterval);
   }, []);
 
   useEffect(() => { setGadgetSalesError(false); }, [gadgetSalesIndex]);
@@ -400,6 +408,19 @@ export default function ServicesPage() {
         getServiceImage(expandedService.title, i)
       ).filter(Boolean)
     : [];
+
+  useEffect(() => {
+    if (!expandedService) return;
+
+    const count = expandedImages.length;
+    if (count <= 1) return;
+
+    const timer = setInterval(() => {
+      setExpandedImgIdx((prev) => (prev + 1) % count);
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [expandedService, expandedImages.length]);
 
   return (
     <div
@@ -520,10 +541,15 @@ export default function ServicesPage() {
               className="expanded-panel"
               layoutId={`card-${expandedService.id}`}
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.85, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{
+                type: "spring",
+                stiffness: 120,
+                damping: 18,
+              }}
+              whileHover={{ y: -10, scale: 1.02 }}
             >
               {/* Image LEFT — content RIGHT */}
               <div className="expanded-layout">
@@ -540,12 +566,14 @@ export default function ServicesPage() {
                       ) : (
                         <motion.img
                           key={`exp-${expandedImgIdx}`}
-                          src={expandedImages[expandedImgIdx]}
+                          src={expandedImages[expandedImgIdx] || ""}
                           alt={expandedService.title}
                           className="expanded-image"
                           layoutId={`image-${expandedService.id}`}
-                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                          transition={{ duration: 0.6 }}
+                          initial={{ opacity: 0, scale: 1.05 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.5 }}
                           onError={() => setExpandedImgFailed(true)}
                         />
                       )}
@@ -567,7 +595,12 @@ export default function ServicesPage() {
                 )}
 
                 {/* Right: text + actions */}
-                <div className="expanded-content-col">
+                <motion.div
+                  className="expanded-content-col"
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
                   <div className="expanded-meta">
                     <span className="bento-id">{expandedService.id}</span>
                     <h2>{expandedService.title}</h2>
@@ -589,7 +622,7 @@ export default function ServicesPage() {
                       Close
                     </button>
                   </div>
-                </div>
+                </motion.div>
 
               </div>
             </motion.section>
@@ -795,13 +828,21 @@ export default function ServicesPage() {
 
         /* Image LEFT / content RIGHT */
         .expanded-layout {
-          display: grid;
-          grid-template-columns: 1fr;
+          display: flex;
+          flex-direction: column;
         }
+
         @media (min-width: 700px) {
           .expanded-layout {
-            grid-template-columns: 1.1fr 0.9fr;
-            min-height: 420px;
+            flex-direction: row;
+          }
+
+          .expanded-image-col {
+            width: 55%;
+          }
+
+          .expanded-content-col {
+            width: 45%;
           }
         }
 
